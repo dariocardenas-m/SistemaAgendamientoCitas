@@ -173,7 +173,7 @@ La evolución arquitectónica permite estudiar y aplicar conceptos relacionados 
 ## Información académica
 
 **Universidad del Cauca**  
-**Software III **  
+**Software IIII**  
 **Periodo académico: 2026-2**
 
 ---
