@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,8 +39,9 @@ public class CitaController {
     @GetMapping("/disponibilidad")
     public DisponibilidadDto disponibilidad(
             @RequestParam Long medicoId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
-        return citaService.disponibilidad(medicoId, fecha);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam(required = false) Long excluirCitaId) {
+        return citaService.disponibilidad(medicoId, fecha, excluirCitaId);
     }
 
     @PostMapping
@@ -65,6 +67,12 @@ public class CitaController {
     @GetMapping("/{id}")
     public CitaDto porId(@PathVariable Long id) {
         return citaService.porId(id);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('PACIENTE','AGENDADOR','ADMINISTRADOR')")
+    public CitaDto editar(@PathVariable Long id, @Valid @RequestBody EditarCitaRequest request) {
+        return citaService.editar(seguridadUtil.usuarioActual(), id, request);
     }
 
     @PatchMapping("/{id}/cancelar")

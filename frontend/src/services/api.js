@@ -15,9 +15,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    const esReserva = err.config?.method?.toLowerCase() === 'post' &&
-      /\/citas\/?$/.test(err.config?.url || '')
-    if (err.response?.status === 409 && esReserva) {
+    const metodo = err.config?.method?.toLowerCase()
+    const url = err.config?.url || ''
+    const esReserva = metodo === 'post' && /\/citas\/?$/.test(url)
+    const esEdicion = (metodo === 'put' || metodo === 'patch') && /\/citas\/\d+/.test(url)
+    if (err.response?.status === 409 && (esReserva || esEdicion)) {
       err.esConflictoReserva = true
     }
     if (err.response?.status === 401) {

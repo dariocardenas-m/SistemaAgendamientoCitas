@@ -33,8 +33,10 @@ export const useCitasStore = defineStore('citas', () => {
     fechasHabiles.value = data
   }
 
-  async function cargarDisponibilidad(medicoId, fechaSel) {
-    const { data } = await api.get('/citas/disponibilidad', { params: { medicoId, fecha: fechaSel } })
+  async function cargarDisponibilidad(medicoId, fechaSel, excluirCitaId) {
+    const params = { medicoId, fecha: fechaSel }
+    if (excluirCitaId) params.excluirCitaId = excluirCitaId
+    const { data } = await api.get('/citas/disponibilidad', { params })
     disponibilidad.value = data
   }
 
@@ -62,6 +64,25 @@ export const useCitasStore = defineStore('citas', () => {
     misCitas.value = data
   }
 
+  async function editarCita(id, payload) {
+    try {
+      const { data } = await api.put(`/citas/${id}`, payload)
+      citaConfirmada.value = data
+      const idx = misCitas.value.findIndex(c => c.id === id)
+      if (idx >= 0) {
+        misCitas.value[idx] = data
+      } else {
+        await cargarMisCitas()
+      }
+      return data
+    } catch (error) {
+      if (error.esConflictoReserva) {
+        conflictoReserva.value = 'La franja horaria seleccionada acaba de ser ocupada por otro usuario. Por favor, elige otro horario.'
+      }
+      throw error
+    }
+  }
+
   function resetFlujo() {
     paso.value = 1
     especialidadId.value = null
@@ -81,6 +102,6 @@ export const useCitasStore = defineStore('citas', () => {
   return {
     especialidades, medicos, paso, especialidadId, medico, fecha, hora, modalidad, motivo,
     disponibilidad, fechasHabiles, citaConfirmada, conflictoReserva, misCitas,
-    cargarEspecialidades, cargarMedicos, cargarFechas, cargarDisponibilidad, confirmar, cargarMisCitas, resetFlujo, cerrarConflictoReserva
+    cargarEspecialidades, cargarMedicos, cargarFechas, cargarDisponibilidad, confirmar, cargarMisCitas, editarCita, resetFlujo, cerrarConflictoReserva
   }
 })

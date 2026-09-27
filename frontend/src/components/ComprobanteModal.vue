@@ -4,8 +4,8 @@
       <div class="text-center">
         <div class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-brand text-3xl text-white">✓</div>
         <p class="mb-2 inline-flex rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand">Confirmación de agendamiento</p>
-        <h2 class="text-2xl font-extrabold">Cita agendada correctamente</h2>
-        <p class="mt-2 text-sm text-slate-500">Tu reserva ha sido confirmada en el sistema. Presenta tu documento de identidad en recepción 15 minutos antes.</p>
+        <h2 class="text-2xl font-extrabold">{{ titulo }}</h2>
+        <p class="mt-2 text-sm text-slate-500">{{ descripcion }}</p>
       </div>
       <div class="mt-6 rounded-2xl border border-slate-100 p-5">
         <div class="mb-4 flex items-center justify-between">
@@ -51,8 +51,18 @@
 </template>
 
 <script setup>
-defineProps({ cita: Object })
+import { computed } from 'vue'
+
+const props = defineProps({
+  cita: Object,
+  actualizada: { type: Boolean, default: false }
+})
 defineEmits(['verCitas', 'inicio'])
+
+const titulo = computed(() => props.actualizada ? 'Cita actualizada correctamente' : 'Cita agendada correctamente')
+const descripcion = computed(() => props.actualizada
+  ? 'Los cambios quedaron registrados. El historial y este comprobante ya reflejan la nueva programación.'
+  : 'Tu reserva ha sido confirmada en el sistema. Presenta tu documento de identidad en recepción 15 minutos antes.')
 
 function formatearFecha(f) {
   if (!f) return ''

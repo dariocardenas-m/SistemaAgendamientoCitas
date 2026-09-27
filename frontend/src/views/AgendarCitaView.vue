@@ -66,9 +66,10 @@
             </div>
           </button>
         </div>
+        <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
         <div class="mt-6 flex justify-between">
           <button class="btn-ghost" @click="store.paso = 1">← Anterior</button>
-          <button class="btn-primary" :disabled="!store.medico" @click="siguienteDesdeMedico">Continuar al Paso 3 →</button>
+          <button class="btn-primary" :disabled="!store.medico || cargandoPaso" @click="siguienteDesdeMedico">{{ cargandoPaso ? 'Cargando fechas…' : 'Continuar al Paso 3 →' }}</button>
         </div>
       </div>
 
@@ -151,7 +152,7 @@
             <button class="rounded-xl px-4 py-3 text-sm font-semibold" :class="store.modalidad==='TELEMEDICINA' ? 'bg-brand text-white' : 'bg-white'" @click="store.modalidad='TELEMEDICINA'">Telemedicina</button>
           </div>
           <label class="mt-4 block text-xs font-bold uppercase text-slate-500">Motivo o notas de la consulta (opcional)
-            <textarea v-model="store.motivo" class="input-field mt-1" rows="2" placeholder="Ej: Control de rutina, dolor lumbar, revisión de exámenes..."></textarea>
+            <textarea v-model="store.motivo" class="input-field mt-1" rows="2" maxlength="500" placeholder="Ej: Control de rutina, dolor lumbar, revisión de exámenes..."></textarea>
           </label>
         </div>
         <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
@@ -177,6 +178,7 @@
           <button class="btn-ghost" @click="store.cerrarConflictoReserva()">Cerrar</button>
           <button class="btn-primary" @click="elegirOtroHorario">Elegir otro horario</button>
         </div>
+        <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
       </div>
     </div>
   </div>
@@ -195,6 +197,7 @@ const store = useCitasStore()
 const router = useRouter()
 const error = ref('')
 const enviando = ref(false)
+const cargandoPaso = ref(false)
 
 const todasLasFranjas = computed(() => {
   const set = new Set([...(store.disponibilidad.libres || []), ...(store.disponibilidad.ocupadas || [])])
@@ -217,9 +220,26 @@ async function siguienteDesdeEspecialidad() {
 }
 
 async function siguienteDesdeMedico() {
-  await store.cargarFechas(store.medico.id)
-  store.fecha = ''
-  store.paso = 3
+  error.value = ''
+  cargandoPaso.value = true
+  try {
+    await store.cargarFechas(store.medico.id)
+    store.fecha = ''
+    store.paso = 3
+    if (!store.fechasHabiles.length) error.value = 'Este profesional no tiene fechas hábiles disponibles en el periodo configurado.'
+  } catch (e) {
+    error.value = mensajeErrorCarga(e, 'las fechas hábiles')
+  } finally {
+    cargandoPaso.value = false
+  }
+}
+
+function mensajeErrorCarga(e, recurso) {
+  if (e.response?.data?.message) return e.response.data.message
+  if (e.response?.status === 401) return 'Tu sesión expiró. Cierra sesión e inicia de nuevo.'
+  if (e.response?.status === 403) return 'No tienes permiso para consultar las fechas de este profesional.'
+  if (!e.response) return `No se pudo conectar con el servidor para cargar ${recurso}. Verifica que el backend esté activo e intenta de nuevo.`
+  return `No fue posible cargar ${recurso} (HTTP ${e.response.status}). Intenta de nuevo.`
 }
 
 async function siguienteDesdeFecha() {

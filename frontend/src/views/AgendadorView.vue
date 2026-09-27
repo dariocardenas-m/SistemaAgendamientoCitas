@@ -86,6 +86,7 @@
             </td>
             <td class="px-3 py-3">
               <template v-if="c.estado==='CONFIRMADA'">
+                <button class="mr-3 text-xs font-semibold text-blue-600" @click="editar = c">Editar</button>
                 <button class="mr-3 text-xs font-semibold text-brand" @click="accion(c, 'atender')">Atendido</button>
                 <button class="text-xs font-semibold text-rose-500" @click="accion(c, 'cancelar')">Cancelar</button>
               </template>
@@ -96,6 +97,19 @@
         </tbody>
       </table>
     </div>
+
+    <EditarCitaModal
+      :cita="editar"
+      permitir-cambiar-medico
+      @cerrar="editar = null"
+      @guardada="onEditada"
+    />
+    <ComprobanteModal
+      :cita="comprobante"
+      actualizada
+      @ver-citas="comprobante = null"
+      @inicio="comprobante = null"
+    />
   </div>
 </template>
 
@@ -103,6 +117,8 @@
 import { computed, onMounted, ref } from 'vue'
 import api from '../services/api'
 import MetricCard from '../components/MetricCard.vue'
+import EditarCitaModal from '../components/EditarCitaModal.vue'
+import ComprobanteModal from '../components/ComprobanteModal.vue'
 
 const medicos = ref([])
 const medicoId = ref('')
@@ -111,6 +127,8 @@ const citas = ref([])
 const consultado = ref(false)
 const busqueda = ref('')
 const filtroEstado = ref('')
+const editar = ref(null)
+const comprobante = ref(null)
 
 const profesional = computed(() => medicos.value.find(m => m.id === Number(medicoId.value)))
 const visibles = computed(() => citas.value.filter(c => {
@@ -154,6 +172,12 @@ function atajoCarlos() {
 
 async function accion(c, tipo) {
   await api.patch(`/citas/${c.id}/${tipo}`)
+  await consultar()
+}
+
+async function onEditada(actualizada) {
+  editar.value = null
+  comprobante.value = actualizada
   await consultar()
 }
 </script>
