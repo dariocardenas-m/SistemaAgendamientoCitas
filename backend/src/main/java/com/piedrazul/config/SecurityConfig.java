@@ -36,9 +36,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/especialidades/**", "/api/medicos/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/citas/fechas-habiles", "/api/citas/disponibilidad").permitAll()
                         .requestMatchers("/api/admin/**", "/api/configuracion/**").hasRole("ADMINISTRADOR")
                         .requestMatchers("/api/citas/consulta/**").hasAnyRole("AGENDADOR", "ADMINISTRADOR")
                         .requestMatchers(HttpMethod.POST, "/api/citas/**")
+                        .hasAnyRole("PACIENTE", "AGENDADOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/citas/**")
                         .hasAnyRole("PACIENTE", "AGENDADOR", "ADMINISTRADOR")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

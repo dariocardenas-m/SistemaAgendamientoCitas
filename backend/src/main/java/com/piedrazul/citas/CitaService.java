@@ -64,6 +64,10 @@ public class CitaService {
     }
 
     public DisponibilidadDto disponibilidad(Long medicoId, LocalDate fecha) {
+        return disponibilidad(medicoId, fecha, null);
+    }
+
+    public DisponibilidadDto disponibilidad(Long medicoId, LocalDate fecha, Long excluirCitaId) {
         Medico medico = medicoRepository.findById(medicoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Médico no encontrado"));
         validarFechaHabil(medico, fecha);
@@ -71,6 +75,7 @@ public class CitaService {
         List<Cita> delDia = citaRepository.findByMedicoIdAndFechaOrderByHoraAsc(medicoId, fecha);
         List<LocalTime> ocupadas = delDia.stream()
                 .filter(c -> c.getEstado() != EstadoCita.CANCELADA)
+                .filter(c -> excluirCitaId == null || !excluirCitaId.equals(c.getId()))
                 .map(Cita::getHora)
                 .toList();
         List<LocalTime> libres = todas.stream().filter(h -> !ocupadas.contains(h)).toList();
@@ -130,23 +135,67 @@ public class CitaService {
     public CitaDto cambiarEstado(Usuario actor, Long citaId, EstadoCita nuevo) {
         Cita cita = citaRepository.findById(citaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada"));
-        if (actor.getRol() == Rol.PACIENTE) {
-            Paciente p = pacienteRepository.findByUsuario(actor)
-                    .orElseThrow(() -> new RecursoNoEncontradoException("Paciente no encontrado"));
-            if (!cita.getPaciente().getId().equals(p.getId())) {
-                throw new org.springframework.security.access.AccessDeniedException("No puede modificar esta cita");
-            }
-            if (nuevo != EstadoCita.CANCELADA) {
-                throw new ReglaNegocioException("El paciente solo puede cancelar sus citas.");
-            }
+        asegurarPacienteDuenoSiAplica(actor, cita);
+        if (actor.getRol() == Rol.PACIENTE && nuevo != EstadoCita.CANCELADA) {
+            throw new ReglaNegocioException("El paciente solo puede cancelar sus citas.");
         }
         cita.setEstado(nuevo);
+        return CitaDto.from(citaRepository.save(cita));
+    }
+
+    @Transactional
+    public CitaDto editar(Usuario actor, Long citaId, EditarCitaRequest request) {
+        Cita cita = citaRepository.findById(citaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada"));
+        asegurarPacienteDuenoSiAplica(actor, cita);
+        if (cita.getEstado() != EstadoCita.CONFIRMADA) {
+            throw new ReglaNegocioException("Solo se pueden editar citas confirmadas. No es posible editar una cita cancelada o atendida.");
+        }
+
+        Long medicoId = request.getMedicoId() != null ? request.getMedicoId() : cita.getMedico().getId();
+        LocalDate fecha = request.getFecha() != null ? request.getFecha() : cita.getFecha();
+        LocalTime hora = request.getHora() != null ? request.getHora() : cita.getHora();
+
+        Medico medico = medicoRepository.lockById(medicoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Médico no encontrado"));
+        validarFechaHabil(medico, fecha);
+        List<LocalTime> franjas = generarFranjas(medico);
+        if (!franjas.contains(hora)) {
+            throw new ReglaNegocioException("La hora seleccionada no corresponde a una franja válida del profesional.");
+        }
+        List<Cita> citasBloqueadas = citaRepository.lockByMedicoAndFecha(medico.getId(), fecha);
+        if (haySolapamiento(citasBloqueadas, hora, medico.getIntervaloMinutos(), cita.getId())) {
+            throw new ConflictoReservaException(
+                    "La franja horaria seleccionada acaba de ser ocupada por otro usuario. Seleccione otro horario.");
+        }
+
+        cita.setMedico(medico);
+        cita.setFecha(fecha);
+        cita.setHora(hora);
+        cita.setDuracionMinutos(medico.getIntervaloMinutos());
+        if (request.getModalidad() != null) {
+            cita.setModalidad(request.getModalidad());
+        }
+        if (request.getMotivo() != null) {
+            cita.setMotivo(request.getMotivo());
+        }
         return CitaDto.from(citaRepository.save(cita));
     }
 
     public CitaDto porId(Long id) {
         return CitaDto.from(citaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada")));
+    }
+
+    private void asegurarPacienteDuenoSiAplica(Usuario actor, Cita cita) {
+        if (actor.getRol() != Rol.PACIENTE) {
+            return;
+        }
+        Paciente p = pacienteRepository.findByUsuario(actor)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Paciente no encontrado"));
+        if (!cita.getPaciente().getId().equals(p.getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("No puede modificar esta cita");
+        }
     }
 
     private Paciente resolverPaciente(Usuario actor, Long pacienteId) {
@@ -185,9 +234,14 @@ public class CitaService {
     }
 
     private boolean haySolapamiento(List<Cita> citas, LocalTime horaSolicitada, int duracionSolicitada) {
+        return haySolapamiento(citas, horaSolicitada, duracionSolicitada, null);
+    }
+
+    private boolean haySolapamiento(List<Cita> citas, LocalTime horaSolicitada, int duracionSolicitada, Long excluirCitaId) {
         LocalTime finSolicitado = horaSolicitada.plusMinutes(duracionSolicitada);
         return citas.stream()
                 .filter(cita -> cita.getEstado() != EstadoCita.CANCELADA)
+                .filter(cita -> excluirCitaId == null || !excluirCitaId.equals(cita.getId()))
                 .anyMatch(cita -> {
                     LocalTime finExistente = cita.getHora().plusMinutes(cita.getDuracionMinutos());
                     return cita.getHora().isBefore(finSolicitado) && finExistente.isAfter(horaSolicitada);

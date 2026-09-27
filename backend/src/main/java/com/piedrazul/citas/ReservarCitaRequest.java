@@ -1,6 +1,7 @@
 package com.piedrazul.citas;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,6 +19,7 @@ public class ReservarCitaRequest {
 
     private ModalidadCita modalidad = ModalidadCita.PRESENCIAL;
 
+    @Size(max = 500, message = "El motivo no puede superar 500 caracteres.")
     private String motivo;
 
     private Long pacienteId;

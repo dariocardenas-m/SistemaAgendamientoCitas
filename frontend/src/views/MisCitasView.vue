@@ -45,9 +45,12 @@
           <div><p class="text-xs text-slate-400">Hora</p>{{ c.hora?.slice(0,5) }} ({{ c.duracionMinutos }} min)</div>
         </div>
         <p class="mt-3 rounded-xl border border-brand/20 px-3 py-2 text-sm">Motivo: {{ c.motivo || 'Sin notas' }}</p>
-        <div class="mt-4 flex justify-between text-sm">
-          <button class="font-semibold text-brand" @click="seleccionada = c">Ver Comprobante</button>
-          <button v-if="c.estado==='CONFIRMADA'" class="font-semibold text-rose-500" @click="cancelar(c)">Cancelar Cita</button>
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm">
+          <button class="font-semibold text-brand" @click="abrirComprobante(c)">Ver Comprobante</button>
+          <div v-if="c.estado==='CONFIRMADA'" class="flex gap-3">
+            <button class="font-semibold text-blue-600" @click="editar = c">Editar Cita</button>
+            <button class="font-semibold text-rose-500" @click="cancelar(c)">Cancelar Cita</button>
+          </div>
         </div>
       </article>
     </div>
@@ -74,7 +77,8 @@
             <td class="px-4 py-3">{{ c.hora?.slice(0,5) }}</td>
             <td class="px-4 py-3"><span class="rounded-full px-2 py-1 text-xs" :class="badge(c.estado)">{{ etiqueta(c.estado) }}</span></td>
             <td class="px-4 py-3 text-right">
-              <button class="mr-3 text-brand" @click="seleccionada = c">Comprobante</button>
+              <button class="mr-3 text-brand" @click="abrirComprobante(c)">Comprobante</button>
+              <button v-if="c.estado==='CONFIRMADA'" class="mr-3 text-blue-600" @click="editar = c">Editar</button>
               <button v-if="c.estado==='CONFIRMADA'" class="text-rose-500" @click="cancelar(c)">Cancelar</button>
             </td>
           </tr>
@@ -82,7 +86,8 @@
       </table>
     </div>
 
-    <ComprobanteModal :cita="seleccionada" @ver-citas="seleccionada=null" @inicio="seleccionada=null" />
+    <ComprobanteModal :cita="seleccionada" :actualizada="comprobanteActualizado" @ver-citas="cerrarComprobante" @inicio="cerrarComprobante" />
+    <EditarCitaModal :cita="editar" @cerrar="editar = null" @guardada="onEditada" />
   </div>
 </template>
 
@@ -91,6 +96,7 @@ import { computed, onMounted, ref } from 'vue'
 import api from '../services/api'
 import { useCitasStore } from '../stores/citasStore'
 import ComprobanteModal from '../components/ComprobanteModal.vue'
+import EditarCitaModal from '../components/EditarCitaModal.vue'
 
 const store = useCitasStore()
 const vista = ref('tarjetas')
@@ -98,6 +104,8 @@ const filtroEstado = ref('')
 const filtroEsp = ref('')
 const filtroFecha = ref('')
 const seleccionada = ref(null)
+const editar = ref(null)
+const comprobanteActualizado = ref(false)
 
 onMounted(() => store.cargarMisCitas())
 
@@ -125,5 +133,21 @@ async function cancelar(c) {
   if (!confirm('¿Desea cancelar esta cita?')) return
   await api.patch(`/citas/${c.id}/cancelar`)
   await store.cargarMisCitas()
+}
+
+function abrirComprobante(c) {
+  comprobanteActualizado.value = false
+  seleccionada.value = c
+}
+
+function cerrarComprobante() {
+  seleccionada.value = null
+  comprobanteActualizado.value = false
+}
+
+function onEditada(actualizada) {
+  editar.value = null
+  comprobanteActualizado.value = true
+  seleccionada.value = actualizada
 }
 </script>
