@@ -56,6 +56,7 @@ public class Cita {
     @Column(nullable = false)
     private EstadoCita estado = EstadoCita.CONFIRMADA;
 
+    @Column(nullable = false)
     private LocalDateTime creadaEn = LocalDateTime.now();
 
     public Long getId() {

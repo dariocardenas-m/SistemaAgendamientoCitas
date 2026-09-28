@@ -84,7 +84,7 @@ La aplicación está compuesta principalmente por:
 - **Frontend:** Vue 3
 - **Backend:** Spring Boot 3
 - **Lenguaje:** Java
-- **Persistencia:** Base de datos SQL
+- **Persistencia:** PostgreSQL (JPA / Hibernate)
 
 El frontend proporciona la interfaz de interacción con los usuarios, mientras que el backend concentra las reglas de negocio y la gestión de la información mediante una API REST.
 
@@ -143,10 +143,79 @@ El diseño arquitectónico también contempla:
 | Spring Boot 3 | Desarrollo del backend |
 | Java | Lenguaje principal del backend |
 | API REST | Comunicación entre frontend y backend |
-| SQL | Persistencia de información |
+| SQL / PostgreSQL | Persistencia de información |
 | PlantUML | Modelado de arquitectura |
 | C4 | Modelado arquitectónico |
 | 4+1 | Vistas arquitectónicas |
+
+---
+
+## Persistencia (PostgreSQL)
+
+El backend usa **Spring Data JPA** contra **PostgreSQL**. El esquema se crea con el script SQL (pgAdmin), no con Hibernate (`ddl-auto: validate`).
+
+**Base de datos recomendada:** `sistema_agendamiento_citas`
+
+### 1. Crear la base en pgAdmin
+
+1. Conéctese al servidor PostgreSQL.
+2. Clic derecho en **Databases** → **Create** → **Database**.
+3. Name: `sistema_agendamiento_citas` → **Save**.
+
+Equivalente SQL (Query Tool sobre la base `postgres`):
+
+```sql
+CREATE DATABASE sistema_agendamiento_citas WITH ENCODING 'UTF8';
+```
+
+### 2. Ejecutar el script de tablas
+
+1. Clic derecho en `sistema_agendamiento_citas` → **Query Tool**.
+2. **File → Open** y seleccione:
+
+`backend/src/main/resources/db/postgresql/schema.sql`
+
+3. Ejecute el script (**F5**).
+
+### 3. Variables de entorno
+
+Configure las credenciales de PostgreSQL (sin guardar la contraseña en el código):
+
+| Variable | Referencia local |
+|----------|------------------|
+| `DB_HOST` | `localhost` (valor por defecto) |
+| `DB_PORT` | `5432` (valor por defecto) |
+| `DB_NAME` | `sistema_agendamiento_citas` (valor por defecto) |
+| `DB_USERNAME` | usuario de PostgreSQL (obligatorio) |
+| `DB_PASSWORD` | contraseña de PostgreSQL (obligatorio) |
+
+Hay un archivo `.env.example` en la raíz del repositorio como plantilla. PowerShell (sesión actual):
+
+```powershell
+$env:DB_USERNAME = "su_usuario"
+$env:DB_PASSWORD = "su_contrasena"
+# opcionales:
+$env:DB_HOST = "localhost"
+$env:DB_PORT = "5432"
+$env:DB_NAME = "sistema_agendamiento_citas"
+```
+
+### 4. Ejecutar el proyecto
+
+Desde `backend` (con las variables ya definidas):
+
+```powershell
+mvn spring-boot:run
+```
+
+Desde `frontend`:
+
+```powershell
+npm install
+npm run dev
+```
+
+La primera vez que la aplicación arranca con tablas vacías, `DataSeeder` crea la configuración inicial y las cuentas de desarrollo (hashes BCrypt). Arranques posteriores no vuelven a insertar esos datos.
 
 ---
 

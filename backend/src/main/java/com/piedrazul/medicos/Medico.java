@@ -24,7 +24,7 @@ public class Medico {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", unique = true)
     private Usuario usuario;
 
     @Column(nullable = false)

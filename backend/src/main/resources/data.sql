@@ -1,3 +1,4 @@
--- Semilla principal gestionada por DataSeeder.java para generar hashes BCrypt.
+-- Semilla principal gestionada por DataSeeder.java para generar hashes BCrypt
+-- la primera vez que arranca la aplicación con PostgreSQL vacío.
 -- Cuentas: juan.perez@email.com / paciente123, carlos.mendoza@piedrazul.com / agendador123,
 -- admin@piedrazul.com / admin123.
