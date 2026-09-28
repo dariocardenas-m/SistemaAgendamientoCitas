@@ -87,6 +87,9 @@ public class CitaService {
         Medico medico = medicoRepository.lockById(request.getMedicoId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Médico no encontrado"));
         validarFechaHabil(medico, request.getFecha());
+        if (request.getFecha().equals(LocalDate.now()) && !request.getHora().isAfter(LocalTime.now())) {
+            throw new ReglaNegocioException("No se puede reservar una hora que ya pasó.");
+        }
         List<LocalTime> franjas = generarFranjas(medico);
         if (!franjas.contains(request.getHora())) {
             throw new ReglaNegocioException("La hora seleccionada no corresponde a una franja válida del profesional.");
@@ -140,13 +143,30 @@ public class CitaService {
                 throw new ReglaNegocioException("El paciente solo puede cancelar sus citas.");
             }
         }
+        if (nuevo == EstadoCita.CONFIRMADA && cita.getEstado() == EstadoCita.CANCELADA) {
+            medicoRepository.lockById(cita.getMedico().getId())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Médico no encontrado"));
+            List<Cita> citasBloqueadas = citaRepository.lockByMedicoAndFecha(
+                    cita.getMedico().getId(), cita.getFecha());
+            if (haySolapamiento(citasBloqueadas, cita.getHora(), cita.getDuracionMinutos())) {
+                throw new ConflictoReservaException("La franja de esta cita ya está ocupada.");
+            }
+        }
         cita.setEstado(nuevo);
         return CitaDto.from(citaRepository.save(cita));
     }
 
-    public CitaDto porId(Long id) {
-        return CitaDto.from(citaRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada")));
+    public CitaDto porId(Usuario actor, Long id) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada"));
+        if (actor.getRol() == Rol.PACIENTE) {
+            Paciente paciente = pacienteRepository.findByUsuario(actor)
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Perfil de paciente no encontrado"));
+            if (!cita.getPaciente().getId().equals(paciente.getId())) {
+                throw new org.springframework.security.access.AccessDeniedException("No puede consultar esta cita");
+            }
+        }
+        return CitaDto.from(cita);
     }
 
     private Paciente resolverPaciente(Usuario actor, Long pacienteId) {

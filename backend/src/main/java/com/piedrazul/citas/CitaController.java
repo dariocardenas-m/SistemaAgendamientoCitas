@@ -64,7 +64,7 @@ public class CitaController {
 
     @GetMapping("/{id}")
     public CitaDto porId(@PathVariable Long id) {
-        return citaService.porId(id);
+        return citaService.porId(seguridadUtil.usuarioActual(), id);
     }
 
     @PatchMapping("/{id}/cancelar")
