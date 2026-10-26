@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: keycloak
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
+
+# El perfil keycloak valida tokens JWT emitidos por Keycloak. La terminación TLS
+# debe configurarse en el despliegue con un certificado y proxy HTTPS válido.
+app:
+  security:
+    require-https: ${APP_REQUIRE_HTTPS:true}
+    jwt:
+      audience: ${KEYCLOAK_API_AUDIENCE:piedrazul-api}

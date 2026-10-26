@@ -17,14 +17,14 @@
         <router-link v-if="auth.rol === 'PACIENTE'" to="/" class="rounded-full px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Inicio</router-link>
         <router-link v-if="auth.rol === 'PACIENTE'" to="/agendar" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/agendar')">Agendar Cita</router-link>
         <router-link v-if="auth.rol === 'PACIENTE'" to="/mis-citas" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/mis-citas')">Mis Citas</router-link>
-        <router-link v-if="['AGENDADOR','ADMINISTRADOR'].includes(auth.rol)" to="/agendador" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/agendador')">Consulta de Citas</router-link>
+        <router-link v-if="['AGENDADOR','ADMINISTRADOR','MEDICO_TERAPISTA'].includes(auth.rol)" to="/agendador" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/agendador')">Gestión de Citas</router-link>
         <router-link v-if="auth.rol === 'ADMINISTRADOR'" to="/admin" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/admin')">Parametrización</router-link>
       </div>
 
       <div class="flex items-center gap-2">
         <template v-if="!auth.isAuthenticated">
           <router-link to="/login" class="hidden rounded-full px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 sm:inline">Iniciar Sesión</router-link>
-          <router-link to="/registro" class="btn-primary !rounded-full !py-2">Registrarse</router-link>
+          <router-link v-if="!auth.usesKeycloak" to="/registro" class="btn-primary !rounded-full !py-2">Registrarse</router-link>
         </template>
         <template v-else>
           <span class="hidden rounded-full border border-brand/30 bg-brand-light px-3 py-1 text-xs font-semibold text-brand sm:inline">

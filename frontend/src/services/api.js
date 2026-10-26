@@ -1,11 +1,12 @@
 import axios from 'axios'
+import { accessToken, isKeycloak } from './identityProvider'
 
 const api = axios.create({
   baseURL: '/api'
 })
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('pa_token')
+api.interceptors.request.use(async (config) => {
+  const token = await accessToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -22,7 +23,7 @@ api.interceptors.response.use(
     if (err.response?.status === 409 && (esReserva || esEdicion)) {
       err.esConflictoReserva = true
     }
-    if (err.response?.status === 401) {
+    if (err.response?.status === 401 && !isKeycloak) {
       localStorage.removeItem('pa_token')
       localStorage.removeItem('pa_user')
     }

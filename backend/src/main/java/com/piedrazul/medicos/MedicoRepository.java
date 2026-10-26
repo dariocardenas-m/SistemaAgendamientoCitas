@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import com.piedrazul.usuarios.Usuario;
 
 public interface MedicoRepository extends JpaRepository<Medico, Long> {
 
@@ -16,6 +17,8 @@ public interface MedicoRepository extends JpaRepository<Medico, Long> {
     long countByEspecialidadId(Long especialidadId);
 
     List<Medico> findAllByOrderByNombreCompletoAsc();
+
+    Optional<Medico> findByUsuario(Usuario usuario);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT m FROM Medico m WHERE m.id = :id")

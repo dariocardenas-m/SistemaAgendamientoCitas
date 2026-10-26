@@ -23,6 +23,9 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(name = "keycloak_subject", unique = true, length = 100)
+    private String keycloakSubject;
+
     @Column(nullable = false)
     private String passwordHash;
 
@@ -57,6 +60,14 @@ public class Usuario {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getKeycloakSubject() {
+        return keycloakSubject;
+    }
+
+    public void setKeycloakSubject(String keycloakSubject) {
+        this.keycloakSubject = keycloakSubject;
     }
 
     public String getPasswordHash() {

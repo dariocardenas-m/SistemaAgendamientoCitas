@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { isKeycloak } from '../services/identityProvider'
 
 const routes = [
   { path: '/', name: 'home', component: () => import('../views/HomeView.vue') },
@@ -21,7 +22,7 @@ const routes = [
     path: '/agendador',
     name: 'agendador',
     component: () => import('../views/AgendadorView.vue'),
-    meta: { auth: true, roles: ['AGENDADOR', 'ADMINISTRADOR'] }
+    meta: { auth: true, roles: ['AGENDADOR', 'ADMINISTRADOR', 'MEDICO_TERAPISTA'] }
   },
   {
     path: '/admin',
@@ -47,11 +48,12 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const auth = useAuthStore()
+  if (isKeycloak && to.name === 'registro') return { name: 'login' }
   if (to.meta.auth && !auth.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
   if (to.meta.guest && auth.isAuthenticated) {
-    return auth.homePorRol()
+    return to.query.redirect || auth.homePorRol()
   }
   if (to.meta.roles && !to.meta.roles.includes(auth.rol)) {
     return auth.homePorRol()

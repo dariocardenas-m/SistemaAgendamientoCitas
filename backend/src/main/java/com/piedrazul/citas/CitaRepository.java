@@ -15,6 +15,8 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
 
     List<Cita> findByPacienteIdOrderByFechaDescHoraDesc(Long pacienteId);
 
+    List<Cita> findByPacienteIdAndMedicoIdOrderByFechaDescHoraDesc(Long pacienteId, Long medicoId);
+
     List<Cita> findByMedicoIdAndFechaOrderByHoraAsc(Long medicoId, LocalDate fecha);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

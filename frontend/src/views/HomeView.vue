@@ -9,7 +9,7 @@
         </p>
         <div class="mt-6 flex flex-wrap gap-3">
           <router-link to="/login" class="rounded-full bg-white/15 px-5 py-3 text-sm font-semibold hover:bg-white/25">Iniciar Sesión</router-link>
-          <router-link to="/registro" class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-brand-dark">Registrarse como Paciente</router-link>
+          <router-link v-if="!usesKeycloak" to="/registro" class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-brand-dark">Registrarse como Paciente</router-link>
           <router-link to="/login" class="rounded-full bg-brand px-5 py-3 text-sm font-semibold">Solicitar una cita</router-link>
         </div>
       </div>
@@ -80,8 +80,10 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import api from '../services/api'
+import { isKeycloak } from '../services/identityProvider'
 
 const medicos = ref([])
+const usesKeycloak = isKeycloak
 
 onMounted(async () => {
   const { data } = await api.get('/medicos')

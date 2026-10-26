@@ -8,7 +8,7 @@ spring:
     password:
   h2:
     console:
-      enabled: true
+      enabled: ${H2_CONSOLE_ENABLED:false}
       path: /h2-console
   jpa:
     hibernate:
@@ -27,7 +27,7 @@ server:
 
 app:
   jwt:
-    secret: "PiedraAzulRedMedicaClaveJwtSuperSegura2026UnicaucaSoftwareIII"
+    secret: ${APP_JWT_SECRET:local-development-only-change-this-jwt-secret-before-deployment-2026}
     expiration-ms: 86400000
   cors:
     allowed-origins: "http://localhost:5173,http://localhost:3000"

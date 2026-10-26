@@ -2,6 +2,7 @@ package com.piedrazul.medicos;
 
 import com.piedrazul.config.RecursoNoEncontradoException;
 import com.piedrazul.config.ReglaNegocioException;
+import com.piedrazul.config.SeguridadUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,9 +22,11 @@ public class MedicoController {
     private static final Set<String> DIAS = Set.of("LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM");
 
     private final MedicoRepository medicoRepository;
+    private final SeguridadUtil seguridadUtil;
 
-    public MedicoController(MedicoRepository medicoRepository) {
+    public MedicoController(MedicoRepository medicoRepository, SeguridadUtil seguridadUtil) {
         this.medicoRepository = medicoRepository;
+        this.seguridadUtil = seguridadUtil;
     }
 
     @GetMapping
@@ -31,6 +34,13 @@ public class MedicoController {
         return medicoRepository.findAllByOrderByNombreCompletoAsc().stream()
                 .map(MedicoDto::from)
                 .toList();
+    }
+
+    @GetMapping("/mi-perfil")
+    @PreAuthorize("hasRole('MEDICO_TERAPISTA')")
+    public MedicoDto miPerfil() {
+        return MedicoDto.from(medicoRepository.findByUsuario(seguridadUtil.usuarioActual())
+                .orElseThrow(() -> new RecursoNoEncontradoException("El usuario no tiene un perfil profesional asociado.")));
     }
 
     @GetMapping("/{id}")

@@ -4,6 +4,7 @@ import com.piedrazul.config.ConflictoReservaException;
 import com.piedrazul.config.ConfiguracionGlobal;
 import com.piedrazul.config.ConfiguracionGlobalRepository;
 import com.piedrazul.config.ReglaNegocioException;
+import com.piedrazul.config.SecurityAuditLogger;
 import com.piedrazul.especialidades.Especialidad;
 import com.piedrazul.medicos.Medico;
 import com.piedrazul.medicos.MedicoRepository;
@@ -40,6 +41,8 @@ class CitaServiceEditarTest {
     private PacienteRepository pacienteRepository;
     @Mock
     private ConfiguracionGlobalRepository configuracionRepository;
+    @Mock
+    private SecurityAuditLogger securityAuditLogger;
 
     @InjectMocks
     private CitaService citaService;

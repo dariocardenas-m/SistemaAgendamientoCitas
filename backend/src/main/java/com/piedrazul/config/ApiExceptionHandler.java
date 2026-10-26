@@ -7,6 +7,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import jakarta.validation.ConstraintViolationException;
 
 import java.time.Instant;
 import java.util.Map;
@@ -44,6 +45,14 @@ public class ApiExceptionHandler {
     public ResponseEntity<Map<String, Object>> validation(MethodArgumentNotValidException ex) {
         String msg = ex.getBindingResult().getFieldErrors().stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        return error(HttpStatus.BAD_REQUEST, msg);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> constraintViolation(ConstraintViolationException ex) {
+        String msg = ex.getConstraintViolations().stream()
+                .map(violation -> violation.getMessage())
                 .collect(Collectors.joining("; "));
         return error(HttpStatus.BAD_REQUEST, msg);
     }

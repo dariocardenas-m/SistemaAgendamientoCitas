@@ -5,6 +5,7 @@ import com.piedrazul.config.ConfiguracionGlobal;
 import com.piedrazul.config.ConfiguracionGlobalRepository;
 import com.piedrazul.config.RecursoNoEncontradoException;
 import com.piedrazul.config.ReglaNegocioException;
+import com.piedrazul.config.SecurityAuditLogger;
 import com.piedrazul.medicos.Medico;
 import com.piedrazul.medicos.MedicoRepository;
 import com.piedrazul.pacientes.Paciente;
@@ -30,15 +31,18 @@ public class CitaService {
     private final MedicoRepository medicoRepository;
     private final PacienteRepository pacienteRepository;
     private final ConfiguracionGlobalRepository configuracionRepository;
+    private final SecurityAuditLogger securityAuditLogger;
 
     public CitaService(CitaRepository citaRepository,
                        MedicoRepository medicoRepository,
                        PacienteRepository pacienteRepository,
-                       ConfiguracionGlobalRepository configuracionRepository) {
+                       ConfiguracionGlobalRepository configuracionRepository,
+                       SecurityAuditLogger securityAuditLogger) {
         this.citaRepository = citaRepository;
         this.medicoRepository = medicoRepository;
         this.pacienteRepository = pacienteRepository;
         this.configuracionRepository = configuracionRepository;
+        this.securityAuditLogger = securityAuditLogger;
     }
 
     public int ventanaSemanas() {
@@ -123,7 +127,8 @@ public class CitaService {
                 .stream().map(CitaDto::from).toList();
     }
 
-    public List<CitaDto> consultarAgenda(Long medicoId, LocalDate fecha) {
+    public List<CitaDto> consultarAgenda(Usuario actor, Long medicoId, LocalDate fecha) {
+        validarAccesoAgenda(actor, medicoId, "CONSULTAR_AGENDA");
         if (!medicoRepository.existsById(medicoId)) {
             throw new RecursoNoEncontradoException("Médico no encontrado");
         }
@@ -131,11 +136,38 @@ public class CitaService {
                 .stream().map(CitaDto::from).toList();
     }
 
+    public List<CitaDto> exportarAgenda(Usuario actor, Long medicoId, LocalDate fecha) {
+        validarAccesoAgenda(actor, medicoId, "EXPORTAR_AGENDA_CSV");
+        if (!medicoRepository.existsById(medicoId)) {
+            throw new RecursoNoEncontradoException("Médico no encontrado");
+        }
+        return citaRepository.findByMedicoIdAndFechaOrderByHoraAsc(medicoId, fecha)
+                .stream().map(CitaDto::from).toList();
+    }
+
+    public List<HistorialCitaDto> historialPorDocumento(Usuario actor, String documento) {
+        Paciente paciente = pacienteRepository.findByDocumento(documento)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró un paciente con la cédula indicada."));
+
+        List<Cita> citas;
+        if (actor.getRol() == Rol.MEDICO_TERAPISTA) {
+            Medico medico = medicoRepository.findByUsuario(actor)
+                    .orElseThrow(() -> accesoDenegado(actor, "CONSULTAR_HISTORIAL", null));
+            citas = citaRepository.findByPacienteIdAndMedicoIdOrderByFechaDescHoraDesc(paciente.getId(), medico.getId());
+        } else if (actor.getRol() == Rol.AGENDADOR || actor.getRol() == Rol.ADMINISTRADOR) {
+            citas = citaRepository.findByPacienteIdOrderByFechaDescHoraDesc(paciente.getId());
+        } else {
+            throw accesoDenegado(actor, "CONSULTAR_HISTORIAL", null);
+        }
+        securityAuditLogger.consultaExitosa(actor, "CONSULTAR_HISTORIAL");
+        return citas.stream().map(HistorialCitaDto::from).toList();
+    }
+
     @Transactional
     public CitaDto cambiarEstado(Usuario actor, Long citaId, EstadoCita nuevo) {
         Cita cita = citaRepository.findById(citaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada"));
-        asegurarPacienteDuenoSiAplica(actor, cita);
+        validarPropiedadDeCita(actor, cita, "CAMBIAR_ESTADO_CITA");
         if (actor.getRol() == Rol.PACIENTE && nuevo != EstadoCita.CANCELADA) {
             throw new ReglaNegocioException("El paciente solo puede cancelar sus citas.");
         }
@@ -147,7 +179,7 @@ public class CitaService {
     public CitaDto editar(Usuario actor, Long citaId, EditarCitaRequest request) {
         Cita cita = citaRepository.findById(citaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada"));
-        asegurarPacienteDuenoSiAplica(actor, cita);
+        validarPropiedadDeCita(actor, cita, "EDITAR_CITA");
         if (cita.getEstado() != EstadoCita.CONFIRMADA) {
             throw new ReglaNegocioException("Solo se pueden editar citas confirmadas. No es posible editar una cita cancelada o atendida.");
         }
@@ -182,20 +214,54 @@ public class CitaService {
         return CitaDto.from(citaRepository.save(cita));
     }
 
-    public CitaDto porId(Long id) {
-        return CitaDto.from(citaRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada")));
+    public CitaDto porId(Usuario actor, Long id) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada"));
+        validarPropiedadDeCita(actor, cita, "CONSULTAR_CITA");
+        return CitaDto.from(cita);
     }
 
-    private void asegurarPacienteDuenoSiAplica(Usuario actor, Cita cita) {
-        if (actor.getRol() != Rol.PACIENTE) {
+    private void validarPropiedadDeCita(Usuario actor, Cita cita, String operacion) {
+        if (actor.getRol() == Rol.AGENDADOR || actor.getRol() == Rol.ADMINISTRADOR) {
             return;
         }
-        Paciente p = pacienteRepository.findByUsuario(actor)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Paciente no encontrado"));
-        if (!cita.getPaciente().getId().equals(p.getId())) {
-            throw new org.springframework.security.access.AccessDeniedException("No puede modificar esta cita");
+        if (actor.getRol() == Rol.PACIENTE) {
+            Paciente paciente = pacienteRepository.findByUsuario(actor)
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Paciente no encontrado"));
+            if (cita.getPaciente().getId().equals(paciente.getId())) {
+                return;
+            }
         }
+        if (actor.getRol() == Rol.MEDICO_TERAPISTA) {
+            Medico medico = medicoRepository.findByUsuario(actor)
+                    .orElseThrow(() -> accesoDenegado(actor, operacion, cita.getMedico().getId()));
+            if (cita.getMedico().getId().equals(medico.getId())) {
+                return;
+            }
+        }
+        throw accesoDenegado(actor, operacion, cita.getMedico().getId());
+    }
+
+    private void validarAccesoAgenda(Usuario actor, Long medicoId, String operacion) {
+        if (actor.getRol() == Rol.AGENDADOR || actor.getRol() == Rol.ADMINISTRADOR) {
+            securityAuditLogger.consultaExitosa(actor, operacion);
+            return;
+        }
+        if (actor.getRol() == Rol.MEDICO_TERAPISTA) {
+            Medico medico = medicoRepository.findByUsuario(actor)
+                    .orElseThrow(() -> accesoDenegado(actor, operacion, medicoId));
+            if (medico.getId().equals(medicoId)) {
+                securityAuditLogger.consultaExitosa(actor, operacion);
+                return;
+            }
+        }
+        throw accesoDenegado(actor, operacion, medicoId);
+    }
+
+    private org.springframework.security.access.AccessDeniedException accesoDenegado(
+            Usuario actor, String operacion, Long medicoId) {
+        securityAuditLogger.accesoDenegado(actor, operacion, medicoId);
+        return new org.springframework.security.access.AccessDeniedException("No tiene permisos para esta información.");
     }
 
     private Paciente resolverPaciente(Usuario actor, Long pacienteId) {

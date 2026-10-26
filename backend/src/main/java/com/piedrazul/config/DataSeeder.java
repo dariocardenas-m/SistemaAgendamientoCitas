@@ -52,6 +52,12 @@ public class DataSeeder implements CommandLineRunner {
         usuario("Dra. Sofía Alarcón", "admin@piedrazul.com", passwordEncoder.encode("admin123"), Rol.ADMINISTRADOR);
         usuario("Carlos Mendoza", "carlos.mendoza@piedrazul.com", passwordEncoder.encode("agendador123"), Rol.AGENDADOR);
         Usuario juan = usuario("Juan Pérez", "juan.perez@email.com", passwordEncoder.encode("paciente123"), Rol.PACIENTE);
+        Usuario lauraUsuario = usuario("Dra. Laura Martínez", "laura.martinez@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
+        Usuario carlosUsuario = usuario("Dr. Carlos Gómez", "carlos.gomez@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
+        Usuario anaUsuario = usuario("Dra. Ana Rodríguez", "ana.rodriguez@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
+        Usuario mariaUsuario = usuario("Lic. María Torres", "maria.torres@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
+        Usuario andresUsuario = usuario("Psic. Andrés Molina", "andres.molina@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
+        Usuario luciaUsuario = usuario("Dra. Lucía Herrera", "lucia.herrera@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
 
         paciente(juan, "1061789234", "312 456 7890", "PAC-0001");
 
@@ -61,32 +67,32 @@ public class DataSeeder implements CommandLineRunner {
         Especialidad psico = especialidad("Psicología", "Salud mental, bienestar emocional y orientación profesional", "brain", "#A855F7");
         Especialidad odonto = especialidad("Odontología", "Salud bucal, limpieza, prevención y estética dental", "smile", "#14B8A6");
 
-        medico("Dra. Laura Martínez", gen,
+        medico(lauraUsuario, "Dra. Laura Martínez", gen,
                 "Consultorio 201 - Bloque A", 9, 4.9,
                 "Especialista en atención médica integral preventiva, diagnóstico clínico y manejo de enfermedades crónicas.",
                 "LUN,MAR,MIE,JUE,VIE", LocalTime.of(8, 0), LocalTime.of(12, 0), 30,
                 "/avatars/laura.png");
-        medico("Dr. Carlos Gómez", gen,
+        medico(carlosUsuario, "Dr. Carlos Gómez", gen,
                 "Consultorio 202 - Bloque A", 12, 4.8,
                 "Médico cirujano con amplia trayectoria en medicina familiar, consulta externa y chequeos preventivos.",
                 "LUN,MAR,MIE,JUE,VIE", LocalTime.of(8, 0), LocalTime.of(13, 0), 30,
                 "/avatars/carlos.png");
-        medico("Dra. Ana Rodríguez", ped,
+        medico(anaUsuario, "Dra. Ana Rodríguez", ped,
                 "Consultorio 104 - Área Infantil", 11, 4.8,
                 "Pediatra con enfoque en crecimiento, vacunación y control del niño sano.",
                 "LUN,MAR,MIE,JUE,VIE", LocalTime.of(8, 0), LocalTime.of(16, 0), 30,
                 "/avatars/ana.png");
-        medico("Lic. María Torres", fisio,
+        medico(mariaUsuario, "Lic. María Torres", fisio,
                 "Sala de Fisioterapia - Piso 1", 5, 4.7,
                 "Fisioterapeuta enfocada en rehabilitación musculoesquelética y terapia funcional.",
                 "LUN,MAR,MIE,JUE,VIE", LocalTime.of(7, 0), LocalTime.of(15, 0), 45,
                 "/avatars/maria.png");
-        medico("Psic. Andrés Molina", psico,
+        medico(andresUsuario, "Psic. Andrés Molina", psico,
                 "Consultorio 310 - Salud Mental", 8, 4.9,
                 "Psicólogo clínico con experiencia en terapia cognitivo-conductual y orientación familiar.",
                 "LUN,MAR,MIE,JUE", LocalTime.of(9, 0), LocalTime.of(17, 0), 45,
                 "/avatars/andres.png");
-        medico("Dra. Lucía Herrera", odonto,
+        medico(luciaUsuario, "Dra. Lucía Herrera", odonto,
                 "Consultorio Odontología - Bloque B", 7, 4.6,
                 "Odontóloga general con énfasis en prevención, endodoncia básica y estética dental.",
                 "MAR,MIE,JUE,VIE,SAB", LocalTime.of(8, 0), LocalTime.of(14, 0), 30,
@@ -122,9 +128,10 @@ public class DataSeeder implements CommandLineRunner {
         return especialidadRepository.save(e);
     }
 
-    private Medico medico(String nombre, Especialidad esp, String consultorio, int anios, double rating,
+    private Medico medico(Usuario usuario, String nombre, Especialidad esp, String consultorio, int anios, double rating,
                           String desc, String dias, LocalTime apertura, LocalTime cierre, int intervalo, String foto) {
         Medico m = new Medico();
+        m.setUsuario(usuario);
         m.setNombreCompleto(nombre);
         m.setEspecialidad(esp);
         m.setConsultorio(consultorio);

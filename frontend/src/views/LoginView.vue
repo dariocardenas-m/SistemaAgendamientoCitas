@@ -5,7 +5,7 @@ VC<template>
       <h1 class="text-center text-2xl font-extrabold">Iniciar Sesión</h1>
       <p class="mb-6 text-center text-sm text-slate-500">Acceso seguro al Sistema de Agendamiento de Citas Médicas</p>
 
-      <form class="space-y-4" @submit.prevent="enviar">
+      <form v-if="!auth.usesKeycloak" class="space-y-4" @submit.prevent="enviar">
         <label class="block text-xs font-bold uppercase tracking-wide text-slate-500">Correo electrónico
           <input v-model="email" type="email" class="input-field mt-1" placeholder="ejemplo: juan.perez@email.com" required />
         </label>
@@ -15,7 +15,13 @@ VC<template>
         <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
         <button class="btn-primary w-full" :disabled="cargando">Iniciar Sesión</button>
       </form>
-      <p class="mt-6 text-center text-sm text-slate-500">
+      <div v-else class="space-y-4">
+        <p class="text-center text-sm text-slate-500">La autenticación se realiza con Keycloak.</p>
+        <p v-if="auth.errorIdentidad" class="text-sm text-rose-600">{{ auth.errorIdentidad }}</p>
+        <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
+        <button class="btn-primary w-full" :disabled="cargando" @click="iniciarKeycloak">Continuar con Keycloak</button>
+      </div>
+      <p v-if="!auth.usesKeycloak" class="mt-6 text-center text-sm text-slate-500">
         ¿No tienes una cuenta de paciente aún?
         <router-link to="/registro" class="font-semibold text-brand">Registrarse aquí</router-link>
       </p>
@@ -50,6 +56,17 @@ async function enviar() {
   } catch (e) {
     error.value = e.response?.data?.message || 'Credenciales incorrectas.'
   } finally {
+    cargando.value = false
+  }
+}
+
+async function iniciarKeycloak() {
+  error.value = ''
+  cargando.value = true
+  try {
+    await auth.login('', '')
+  } catch (e) {
+    error.value = e.message || 'No se pudo iniciar sesión con Keycloak.'
     cargando.value = false
   }
 }
