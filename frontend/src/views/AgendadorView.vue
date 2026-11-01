@@ -2,7 +2,7 @@
   <div class="mx-auto max-w-7xl px-4 py-8">
     <div class="card mb-6 flex items-start justify-between p-6">
       <div>
-        <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">Gestión operativa de citas</span>
+        <span class="rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand">Gestión operativa de citas</span>
         <h1 class="mt-3 text-2xl font-extrabold">Consulta de Citas Programadas</h1>
         <p class="text-sm text-slate-500">Módulo del Agendador para verificación de agendas médicas, pacientes citados y ocupación diaria.</p>
       </div>
@@ -17,13 +17,13 @@
           <option v-for="m in medicos" :key="m.id" :value="m.id">{{ m.nombreCompleto }} — {{ m.especialidad }}</option>
         </select>
         <input v-model="fecha" type="date" class="input-field" />
-        <button class="btn-primary !bg-blue-600 hover:!bg-blue-700" @click="consultar">Consultar</button>
+        <button class="btn-primary" @click="consultar">Consultar</button>
       </div>
       <p v-if="error" class="mt-3 text-sm text-rose-600">{{ error }}</p>
     </div>
 
     <div v-if="consultado" class="mb-6 grid gap-4 md:grid-cols-4">
-      <MetricCard label="Total de citas" :value="citas.length" hint="Citas registradas" value-class="text-blue-700" />
+      <MetricCard label="Total de citas" :value="citas.length" hint="Citas registradas" value-class="text-brand" />
       <MetricCard label="Confirmadas" :value="conteo('CONFIRMADA')" hint="Turnos activos" value-class="text-brand" />
       <MetricCard label="Canceladas" :value="conteo('CANCELADA')" hint="Liberadas" value-class="text-rose-500" />
       <div class="card flex items-center gap-3 p-5">
@@ -82,7 +82,7 @@
             </td>
             <td class="px-3 py-3">
               <template v-if="c.estado==='CONFIRMADA'">
-                <button class="mr-3 text-xs font-semibold text-blue-600" @click="editar = c">Editar</button>
+                <button class="mr-3 text-xs font-semibold text-brand" @click="editar = c">Editar</button>
                 <button class="mr-3 text-xs font-semibold text-brand" @click="accion(c, 'atender')">Atendido</button>
                 <button class="text-xs font-semibold text-rose-500" @click="accion(c, 'cancelar')">Cancelar</button>
               </template>
@@ -101,7 +101,7 @@
       </div>
       <form class="grid gap-3 md:grid-cols-[1fr_auto]" @submit.prevent="consultarHistorial">
         <input v-model.trim="cedula" class="input-field" inputmode="numeric" maxlength="20" pattern="[0-9]{6,20}" placeholder="Cédula del paciente" required />
-        <button class="btn-primary !bg-blue-600 hover:!bg-blue-700" :disabled="consultandoHistorial">Consultar historial</button>
+        <button class="btn-primary" :disabled="consultandoHistorial">Consultar historial</button>
       </form>
       <p v-if="errorHistorial" class="mt-3 text-sm text-rose-600">{{ errorHistorial }}</p>
       <div v-if="historialConsultado" class="mt-5 overflow-x-auto">

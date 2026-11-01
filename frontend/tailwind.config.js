@@ -5,9 +5,9 @@ export default {
     extend: {
       colors: {
         brand: {
-          DEFAULT: '#00A887',
-          dark: '#008F73',
-          light: '#E6F7F3'
+          DEFAULT: 'rgb(var(--brand-color-rgb, 0 168 135) / <alpha-value>)',
+          dark: 'rgb(var(--brand-color-dark-rgb, 0 143 115) / <alpha-value>)',
+          light: 'rgb(var(--brand-color-light-rgb, 230 247 243) / <alpha-value>)'
         },
         page: '#F4F7F6'
       },

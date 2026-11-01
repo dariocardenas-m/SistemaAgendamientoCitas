@@ -7,6 +7,34 @@ html, body, #app {
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
+/* La marca cambia según el rol activo; paciente conserva el verde original. */
+.role-theme-ADMINISTRADOR {
+  --brand-color-rgb: 152 16 250;
+  --brand-color-dark-rgb: 126 11 209;
+  --brand-color-light-rgb: 245 233 255;
+}
+
+.role-theme-MEDICO_TERAPISTA {
+  --brand-color-rgb: 37 99 235;
+  --brand-color-dark-rgb: 29 78 216;
+  --brand-color-light-rgb: 234 242 255;
+}
+
+.role-theme-AGENDADOR {
+  --brand-color-rgb: 14 116 144;
+  --brand-color-dark-rgb: 21 94 117;
+  --brand-color-light-rgb: 230 247 251;
+}
+
+.role-theme-ADMINISTRADOR input[type='range'],
+.role-theme-ADMINISTRADOR input[type='checkbox'],
+.role-theme-MEDICO_TERAPISTA input[type='range'],
+.role-theme-MEDICO_TERAPISTA input[type='checkbox'],
+.role-theme-AGENDADOR input[type='range'],
+.role-theme-AGENDADOR input[type='checkbox'] {
+  accent-color: rgb(var(--brand-color-rgb));
+}
+
 .input-field {
   @apply w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand/20;
 }
