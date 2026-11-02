@@ -1,0 +1,37 @@
+@startuml
+title PiedraAzul · Vista física · Topología local configurada
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam backgroundColor white
+top to bottom direction
+node "Equipo de desarrollo / demostración" {
+  node "Navegador" {
+    artifact "SPA Vue 3\nRouter / Pinia / keycloak-js" as SPA
+  }
+  node "Proceso Node.js" {
+    component "Vite\nlocalhost:5173\nRecursos web y proxy /api" as VITE
+  }
+  node "JVM · Java 17" {
+    component "API Spring Boot\nlocalhost:8080\nPerfiles mysql,keycloak" as API
+  }
+  node "Servidor de identidad" {
+    component "Keycloak\nlocalhost:8081\nRealm piedrazul" as KC
+  }
+  node "Servidor MySQL" {
+    database "piedrazul\nlocalhost:3307" as DB
+  }
+  artifact "Postman\nGestión de usuarios y roles" as POSTMAN
+}
+SPA --> VITE : HTTP · interfaz y /api
+VITE --> API : Proxy HTTP /api
+SPA --> KC : OIDC / PKCE\ny renovación
+API --> KC : Discovery / JWKS
+API --> DB : JDBC / MySQL
+POSTMAN --> KC : Admin REST API\ncon permisos administrativos
+note bottom of API
+  HTTP en desarrollo local.
+  No describe producción.
+  Producción requiere HTTPS.
+end note
+footer Puertos predeterminados del proyecto · Auditoría real con MySQL aislado en 3317
+@enduml

@@ -8,7 +8,7 @@ import java.util.List;
 @Service
 public class CitaCsvExportService {
 
-    private static final String ENCABEZADO = "Código,Hora,Paciente,Documento,Estado,Modalidad,Duración (minutos)\r\n";
+    private static final String ENCABEZADO = "Código,Fecha,Hora,Profesional,Paciente,Documento,Estado,Modalidad,Duración (minutos)\r\n";
 
     /**
      * Genera el archivo en memoria. No se persiste ningún archivo CSV en el servidor,
@@ -18,7 +18,9 @@ public class CitaCsvExportService {
         StringBuilder csv = new StringBuilder("\uFEFF").append(ENCABEZADO);
         for (CitaDto cita : citas) {
             csv.append(campo(cita.getCodigo())).append(',')
+                    .append(campo(cita.getFecha() == null ? "" : cita.getFecha().toString())).append(',')
                     .append(campo(cita.getHora() == null ? "" : cita.getHora().toString())).append(',')
+                    .append(campo(cita.getMedicoNombre())).append(',')
                     .append(campo(cita.getPacienteNombre())).append(',')
                     .append(campo(cita.getPacienteDocumento())).append(',')
                     .append(campo(cita.getEstado() == null ? "" : cita.getEstado().name())).append(',')

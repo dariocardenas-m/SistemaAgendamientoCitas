@@ -5,6 +5,8 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import com.piedrazul.usuarios.Rol;
@@ -18,7 +20,12 @@ public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, Abstra
 
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        Collection<GrantedAuthority> authorities = rolesAplicacion(jwt).stream()
+        List<Rol> roles = rolesAplicacion(jwt);
+        if (roles.size() != 1) {
+            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token",
+                    "El token debe incluir exactamente un rol de aplicación.", null));
+        }
+        Collection<GrantedAuthority> authorities = roles.stream()
                 .map(rol -> new SimpleGrantedAuthority("ROLE_" + rol.name()))
                 .map(GrantedAuthority.class::cast)
                 .toList();

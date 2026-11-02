@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_TOP_DOWN()
+title PiedraAzul · C4 nivel 3 · Componentes del backend
+Container(spa, "SPA Vue 3", "Navegador", "Vistas de paciente, agendador, profesional y administrador")
+System_Ext(kc, "Keycloak", "Proveedor OIDC y JWKS")
+ContainerDb(db, "Base de datos", "MySQL", "Persistencia relacional")
+Container_Boundary(back, "API Spring Boot · monolito modular") {
+  Component(seg, "Seguridad de solicitudes", "Spring Security · config.Keycloak*", "Valida JWT y aplica permisos por ruta.")
+  Component(perfil, "Identidad y perfil local", "AuthService · SeguridadUtil · Perfil*Keycloak*", "Resuelve usuario, sub y rol de aplicación.")
+  Component(citas, "Gestión de citas", "CitaController · CitaService", "Reserva, consulta, estado, historial y propiedad.")
+  Component(csv, "Exportación CSV", "CitaCsvExportService", "Archivo en memoria y escape de campos.")
+  Component(catalogo, "Catálogos y parámetros", "Controllers de catálogos y configuración", "Profesionales, pacientes y atención.")
+  Component(repos, "Acceso a datos", "Repositorios Spring Data JPA", "Mapeo y consultas de entidades.")
+}
+Rel(spa, seg, "Solicita operaciones", "HTTP / JSON / bearer")
+Rel_L(seg, kc, "Obtiene claves", "Discovery / JWKS")
+Rel_R(seg, perfil, "Rutas de perfil")
+Rel_D(seg, citas, "Rutas de citas")
+Rel(seg, catalogo, "Rutas de catálogos")
+citas -[norank]-> perfil : Actor actual
+Rel_D(citas, csv, "Agenda autorizada")
+Rel(citas, repos, "Citas e historial")
+Rel(perfil, repos, "Vincula perfil")
+Rel_R(catalogo, repos, "Datos y parámetros")
+Rel_D(repos, db, "Lee / escribe", "JPA / JDBC")
+Lay_R(catalogo, citas)
+Lay_R(citas, perfil)
+Lay_R(csv, repos)
+footer Perfil keycloak · Filtro JWT local excluido; se exige un único rol de aplicación
+@enduml

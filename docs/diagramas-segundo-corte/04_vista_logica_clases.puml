@@ -1,0 +1,72 @@
+@startuml
+title PiedraAzul · Vista lógica · Entidades del dominio
+skinparam defaultFontName Arial
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam backgroundColor white
+hide empty methods
+class Usuario {
+  id : Long
+  nombreCompleto : String
+  email : String
+  keycloakSubject : String
+  rol : Rol
+  activo : boolean
+}
+class Paciente {
+  id : Long
+  documento : String
+  telefono : String
+  codigo : String
+}
+class Medico {
+  id : Long
+  nombreCompleto : String
+  diasAtencion : String
+  horaApertura : LocalTime
+  horaCierre : LocalTime
+  intervaloMinutos : Integer
+}
+class Especialidad {
+  id : Long
+  nombre : String
+  descripcion : String
+}
+class Cita {
+  id : Long
+  codigo : String
+  fecha : LocalDate
+  hora : LocalTime
+  duracionMinutos : Integer
+  modalidad : ModalidadCita
+  motivo : String
+  estado : EstadoCita
+}
+class ConfiguracionGlobal {
+  id : Long
+  ventanaSemanas : Integer
+}
+enum Rol {
+  PACIENTE
+  AGENDADOR
+  MEDICO_TERAPISTA
+  ADMINISTRADOR
+}
+Paciente "0..1" --> "1" Usuario : usuario
+Medico "0..1" --> "0..1" Usuario : usuario
+Medico "0..*" --> "1" Especialidad : especialidad
+Cita "0..*" --> "1" Paciente : paciente
+Cita "0..*" --> "1" Medico : medico
+Usuario ..> Rol
+note bottom of Usuario
+  keycloakSubject vincula el perfil local
+  con el sub de la identidad externa.
+  No se modela Keycloak como una tabla JPA.
+end note
+note bottom of ConfiguracionGlobal
+  CitaService lee la ventana global
+  y la combina con el horario del médico.
+  No existe una asociación JPA con Medico.
+end note
+footer Atributos principales y cardinalidades obtenidos de las entidades JPA; se omiten getters y campos secundarios
+@enduml

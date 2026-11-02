@@ -41,7 +41,7 @@
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
           "config": {
-            "included.client.audience": "piedrazul-api",
+            "included.custom.audience": "piedrazul-api",
             "id.token.claim": "false",
             "access.token.claim": "true"
           }

@@ -1,0 +1,49 @@
+@startuml
+title PiedraAzul · Vista de procesos · Inicio de sesión OIDC
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam backgroundColor white
+autonumber
+actor "Usuario" as U
+participant "SPA Vue\nkeycloak-js" as SPA
+participant "Keycloak" as KC
+participant "API\nResource Server" as API
+U -> SPA : Solicita iniciar sesión
+SPA -> KC : Redirige a autorización OIDC\nclient_id + redirect_uri + code_challenge
+KC -> U : Presenta su formulario de acceso
+U -> KC : Se autentica en Keycloak
+KC --> SPA : Redirección al callback con code
+SPA -> KC : Intercambia code + code_verifier\nAuthorization Code + PKCE
+KC --> SPA : Access token JWT y sesión OIDC
+note over SPA
+  El SDK conserva el token en memoria
+  y solicita renovación cuando corresponde.
+end note
+SPA -> API : GET /api/auth/me\nAuthorization: Bearer access_token
+opt Metadatos o claves no disponibles en caché
+  API -> KC : OIDC discovery / JWKS
+  KC --> API : Emisor y claves públicas
+end
+API -> API : Valida firma, issuer, expiración y audience
+alt JWT inválido o expirado
+  API --> SPA : HTTP 401
+  SPA --> U : Informa el error de acceso
+else JWT aceptado
+  API -> API : AuthService.me()\nSeguridadUtil.usuarioActual()
+  note right of API
+    Comprueba sub y rol único.
+    Busca/vincula el perfil local
+    mediante UsuarioRepository
+    y MySQL; verifica activo.
+  end note
+  alt Perfil o vinculación no autorizados
+    API --> SPA : HTTP 403
+    SPA --> U : Informa que no hay un perfil habilitado
+  else Perfil válido
+    API --> SPA : HTTP 200 / UsuarioDto
+    SPA -> SPA : Actualiza authStore y la navegación por rol
+    SPA --> U : Muestra la pantalla correspondiente
+  end
+end
+footer PKCE y API validados por HTTP con Keycloak real · Recorrido visual de la SPA pendiente
+@enduml

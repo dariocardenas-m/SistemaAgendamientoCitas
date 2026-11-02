@@ -79,6 +79,16 @@ En Postman configura OAuth 2.0 Authorization Code (With PKCE): client `piedrazul
 
 Para administrar cuentas con la Admin REST API desde Postman, crea en la consola de Keycloak un cliente confidencial `piedrazul-postman-admin` con Service Account habilitada y asígnale los roles de `realm-management` `query-users`, `view-users`, `manage-users` y `view-realm`. Guarda el client secret solo en un entorno privado de Postman. Obtén un token con `client_credentials` en `POST http://localhost:8081/realms/piedrazul/protocol/openid-connect/token`; crea usuarios con `POST /admin/realms/piedrazul/users`, busca el usuario y el rol por sus endpoints `GET`, y asigna el rol con `POST /admin/realms/piedrazul/users/{userId}/role-mappings/realm` usando el JSON del rol. No guardes tokens, claves ni client secrets en la colección o el repositorio.
 
+## Validación del segundo corte
+
+Consulta [la validación y el informe breve de seguridad](docs/VALIDACION_SEGUNDO_CORTE.md) para los fallos corregidos, pruebas, entorno real de Keycloak/MySQL y límites del escaneo ZAP. Para incluir las pruebas `*IT`, ejecuta desde `backend/` con Java 17:
+
+```bash
+mvn "-Dtest=*Test,*IT" test
+```
+
+La versión de Java del servidor Keycloak depende de la versión de Keycloak elegida. La auditoría usó Keycloak 26.8.1 con Java 25; el backend se mantuvo en Java 17. Configura `JAVA_HOME` por terminal para cada proceso.
+
 ## Cuentas locales demo
 
 El perfil local crea estas cuentas al iniciar una base vacía:

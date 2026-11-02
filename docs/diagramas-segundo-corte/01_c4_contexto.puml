@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_TOP_DOWN()
+title PiedraAzul · C4 nivel 1 · Contexto
+Person(paciente, "Paciente", "Consulta disponibilidad y gestiona sus citas.")
+Person(agendador, "Agendador", "Consulta agendas e historial y exporta citas.")
+Person(medico, "Médico / terapista", "Consulta su agenda e historial autorizado.")
+Person(admin, "Administrador", "Configura atención y administra accesos.")
+System(app, "Sistema de Agendamiento PiedraAzul", "Reserva, consulta y gestión de citas médicas.")
+System_Ext(keycloak, "Keycloak", "Proveedor externo de identidad y gestión de usuarios y roles.")
+Rel(paciente, app, "Reserva y administra citas propias")
+Rel(agendador, app, "Gestiona y exporta agendas")
+Rel(medico, app, "Consulta y atiende su agenda")
+Rel(admin, app, "Configura parámetros de atención")
+Rel(app, keycloak, "Integra autenticación y valida la identidad", "OIDC / JWT")
+Rel(admin, keycloak, "Gestiona usuarios y roles", "Postman / Admin REST API")
+footer Segunda iteración · Identidad y acceso validados por HTTP en el entorno local de auditoría
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+title PiedraAzul · Vista de procesos · CSV e historial protegidos
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam backgroundColor white
+autonumber
+participant "Cliente web\nAgendadorView / Axios" as SPA
+participant "Spring Security\nResource Server" as SEG
+participant "Controlador y servicio\nCitaController / CitaService" as SERV
+database "Repositorios JPA\nMySQL" as DB
+note over SPA, SEG
+  Precondición: sesión OIDC y perfil local preparados.
+  En desarrollo, /api pasa por el proxy Vite.
+end note
+SPA -> SEG : GET /api/citas/exportar o /historial\nParámetros + bearer JWT
+SEG -> SEG : Valida JWT y rol de la ruta
+alt Sin JWT válido
+  SEG --> SPA : HTTP 401
+else Rol no permitido
+  SEG --> SPA : HTTP 403
+else Identidad y rol aceptados
+  SEG -> SERV : Invoca endpoint y resuelve actor
+  SERV -> SERV : Aplica propiedad y alcance por rol
+  alt Agenda ajena a un profesional
+    SERV --> SPA : HTTP 403
+  else Exportar agenda autorizada
+    SERV -> DB : Citas por medicoId y fecha\nordenadas por hora
+    DB --> SERV : Lista de citas
+    SERV -> SERV : CitaCsvExportService.generar()\nUTF-8 y campos escapados
+    SERV --> SPA : HTTP 200 / text/csv\nContent-Disposition: attachment
+    note left of SPA : El navegador descarga el CSV.
+  else Consultar historial autorizado
+    SERV -> DB : Paciente por documento;\ncitas filtradas según el rol
+    DB --> SERV : Citas ordenadas por fecha y hora descendentes
+    SERV --> SPA : HTTP 200 / List<HistorialCitaDto>
+    note left of SPA : La vista muestra el historial permitido.
+  end
+end
+note over SERV, DB
+  Cédula inválida: 400; paciente inexistente: 404.
+  El historial del médico se filtra por su propio medicoId.
+end note
+footer Roles y propiedad se comprueban en el backend; ocultar botones no sustituye la autorización
+@enduml

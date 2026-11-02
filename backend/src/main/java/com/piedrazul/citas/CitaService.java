@@ -171,6 +171,17 @@ public class CitaService {
         if (actor.getRol() == Rol.PACIENTE && nuevo != EstadoCita.CANCELADA) {
             throw new ReglaNegocioException("El paciente solo puede cancelar sus citas.");
         }
+        if (nuevo == EstadoCita.CONFIRMADA) {
+            // Mismo orden de bloqueo que reservar/editar para serializar la ocupación.
+            medicoRepository.lockById(cita.getMedico().getId())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Médico no encontrado"));
+            List<Cita> citasBloqueadas = citaRepository.lockByMedicoAndFecha(
+                    cita.getMedico().getId(), cita.getFecha());
+            if (haySolapamiento(citasBloqueadas, cita.getHora(), cita.getDuracionMinutos(), cita.getId())) {
+                throw new ConflictoReservaException(
+                        "No se puede reactivar la cita: la franja ya está ocupada. Seleccione otro horario.");
+            }
+        }
         cita.setEstado(nuevo);
         return CitaDto.from(citaRepository.save(cita));
     }

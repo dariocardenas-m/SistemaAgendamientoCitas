@@ -1,0 +1,63 @@
+{
+  "inicio_utc": "2026-11-01T23:42:40.657424+00:00",
+  "fin_utc": "2026-11-01T23:42:53.674829+00:00",
+  "version_zap": "2.16.0",
+  "modo": "protect; contexto en alcance",
+  "autenticacion": "escaneo web sin autenticar; matriz de roles separada con tokens reales",
+  "incluido": [
+    "http://localhost:5173/",
+    "http://localhost:8080/api/"
+  ],
+  "objetivo_activo": "http://localhost:5173/login; sin recursión",
+  "excluido": [
+    "Keycloak 8081",
+    "ZAP API 8090",
+    "otros equipos y servicios"
+  ],
+  "datos": "ficticios; MySQL de auditoría aislado en 3317",
+  "spider_id": "4",
+  "spider_completo": true,
+  "active_scan_id": "0",
+  "active_scan_completo": true,
+  "limite_active_scan_minutos": 3,
+  "registros_pasivos_pendientes": 0,
+  "total_alertas": 45,
+  "tipos": [
+    {
+      "plugin_id": "10020",
+      "alerta": "Missing Anti-clickjacking Header",
+      "riesgo": "Medium",
+      "instancias": 10
+    },
+    {
+      "plugin_id": "10038",
+      "alerta": "Content Security Policy (CSP) Header Not Set",
+      "riesgo": "Medium",
+      "instancias": 10
+    },
+    {
+      "plugin_id": "10109",
+      "alerta": "Modern Web Application",
+      "riesgo": "Informational",
+      "instancias": 10
+    },
+    {
+      "plugin_id": "10021",
+      "alerta": "X-Content-Type-Options Header Missing",
+      "riesgo": "Low",
+      "instancias": 13
+    },
+    {
+      "plugin_id": "10116",
+      "alerta": "ZAP is Out of Date",
+      "riesgo": "Low",
+      "instancias": 1
+    },
+    {
+      "plugin_id": "10027",
+      "alerta": "Information Disclosure - Suspicious Comments",
+      "riesgo": "Informational",
+      "instancias": 1
+    }
+  ]
+}

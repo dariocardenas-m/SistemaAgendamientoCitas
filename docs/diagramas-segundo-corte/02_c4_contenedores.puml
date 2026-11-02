@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_TOP_DOWN()
+title PiedraAzul · C4 nivel 2 · Contenedores
+Person(paciente, "Paciente", "Gestiona citas propias")
+Person(agendador, "Agendador", "Gestiona agendas")
+Person(medico, "Médico / terapista", "Atiende su agenda")
+Person(admin, "Administrador", "Configura el sistema")
+System_Boundary(piedra, "Sistema de Agendamiento PiedraAzul") {
+  Container(spa, "Aplicación web", "Vue 3 · Router · Pinia · Axios", "SPA ejecutada en el navegador; vistas según el rol.")
+  Container(api, "API y lógica de negocio", "Java 17 · Spring Boot 3.3.4", "Monolito modular: reglas, permisos, CSV e historial.")
+  ContainerDb(db, "Persistencia", "MySQL · perfil mysql", "Usuarios vinculados, pacientes, profesionales, citas y configuración.")
+}
+System_Ext(kc, "Keycloak", "OIDC; usuarios, roles y emisión de access tokens JWT.")
+Rel(paciente, spa, "Usa")
+Rel(agendador, spa, "Usa")
+Rel(medico, spa, "Usa")
+Rel(admin, spa, "Usa")
+Rel(spa, api, "Consulta y modifica; envía bearer JWT", "REST / JSON / CSV; proxy Vite en desarrollo")
+Rel(spa, kc, "Inicia sesión y renueva el token", "Authorization Code + PKCE")
+Rel(api, kc, "Obtiene metadatos OIDC y claves públicas", "Discovery / JWKS")
+Rel(api, db, "Lee y escribe datos", "Spring Data JPA / JDBC")
+Rel(admin, kc, "Administra identidades", "Postman / Admin REST API")
+footer Perfiles mysql,keycloak · La API valida el JWT localmente; no consulta Keycloak por cada operación
+@enduml

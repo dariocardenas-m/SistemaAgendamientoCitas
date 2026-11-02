@@ -1,0 +1,57 @@
+{
+  "fecha": "2026-11-01",
+  "seleccion": "*Test,*IT",
+  "totales": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "clases": [
+    {
+      "nombre": "com.piedrazul.citas.CitaEditarIT",
+      "pruebas": "5",
+      "fallos": "0",
+      "errores": "0"
+    },
+    {
+      "nombre": "com.piedrazul.citas.CitaExportacionHistorialTest",
+      "pruebas": "4",
+      "fallos": "0",
+      "errores": "0"
+    },
+    {
+      "nombre": "com.piedrazul.citas.CitaServiceEditarTest",
+      "pruebas": "4",
+      "fallos": "0",
+      "errores": "0"
+    },
+    {
+      "nombre": "com.piedrazul.citas.CitaServiceReactivarTest",
+      "pruebas": "2",
+      "fallos": "0",
+      "errores": "0"
+    },
+    {
+      "nombre": "com.piedrazul.config.KeycloakAuthenticationIT",
+      "pruebas": "3",
+      "fallos": "0",
+      "errores": "0"
+    },
+    {
+      "nombre": "com.piedrazul.config.KeycloakJwtAuthenticationConverterTest",
+      "pruebas": "3",
+      "fallos": "0",
+      "errores": "0"
+    },
+    {
+      "nombre": "com.piedrazul.config.KeycloakRealmImportTest",
+      "pruebas": "1",
+      "fallos": "0",
+      "errores": "0"
+    }
+  ],
+  "empaquetado_backend": "BUILD SUCCESS con 22 pruebas aprobadas en backend-validacion-final.log",
+  "frontend": "compilación correcta sobre 7a5b57f",
+  "limite": "No equivale a cobertura total del código"
+}

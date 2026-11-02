@@ -1,0 +1,37 @@
+{
+  "fecha_utc": "2026-11-01T23:49:14.414244+00:00",
+  "respuestas": [
+    {
+      "url": "http://127.0.0.1:5173/",
+      "status": 200,
+      "headers": {
+        "Vary": "Origin",
+        "Content-Type": "text/html",
+        "Cache-Control": "no-cache",
+        "Etag": "W/\"2c7-rnBxrqz6M7qnumMq2rt52TChUcE\"",
+        "Date": "Sun, 01 Nov 2026 23:49:14 GMT",
+        "Connection": "close",
+        "Content-Length": "711"
+      },
+      "csp_ausente": true,
+      "x_frame_options_ausente": true,
+      "alcance": "cabeceras de respuesta; explotación no demostrada"
+    },
+    {
+      "url": "http://127.0.0.1:5173/login",
+      "status": 200,
+      "headers": {
+        "Vary": "Origin",
+        "Content-Type": "text/html",
+        "Cache-Control": "no-cache",
+        "Etag": "W/\"2c7-rnBxrqz6M7qnumMq2rt52TChUcE\"",
+        "Date": "Sun, 01 Nov 2026 23:49:14 GMT",
+        "Connection": "close",
+        "Content-Length": "711"
+      },
+      "csp_ausente": true,
+      "x_frame_options_ausente": true,
+      "alcance": "cabeceras de respuesta; explotación no demostrada"
+    }
+  ]
+}

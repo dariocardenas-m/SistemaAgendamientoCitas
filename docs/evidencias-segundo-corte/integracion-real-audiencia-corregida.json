@@ -1,0 +1,240 @@
+{
+  "fecha": "2026-11-01T23:44:22.539274+00:00",
+  "entorno": {
+    "keycloak": "26.8.1",
+    "mysql": "8.0.46; instancia separada en 3317",
+    "backend": "mysql,keycloak; corrección local JwtAuthFilter",
+    "datos": "ficticios de demostración y usuarios de auditoría",
+    "flujo": "Authorization Code + PKCE S256; directAccessGrantsEnabled=false"
+  },
+  "casos": [
+    {
+      "caso": "Login PKCE y perfil paciente",
+      "metodo": "GET",
+      "ruta": "/auth/me",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true,
+      "rol_observado": "PACIENTE"
+    },
+    {
+      "caso": "Login PKCE y perfil agendador",
+      "metodo": "GET",
+      "ruta": "/auth/me",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true,
+      "rol_observado": "AGENDADOR"
+    },
+    {
+      "caso": "Login PKCE y perfil medico",
+      "metodo": "GET",
+      "ruta": "/auth/me",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true,
+      "rol_observado": "MEDICO_TERAPISTA"
+    },
+    {
+      "caso": "Login PKCE y perfil administrador",
+      "metodo": "GET",
+      "ruta": "/auth/me",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true,
+      "rol_observado": "ADMINISTRADOR"
+    },
+    {
+      "caso": "Sin token",
+      "metodo": "GET",
+      "ruta": "/citas/mias",
+      "esperado": 401,
+      "observado": 401,
+      "aprobado": true
+    },
+    {
+      "caso": "JWT con firma alterada",
+      "metodo": "GET",
+      "ruta": "/auth/me",
+      "esperado": 401,
+      "observado": 401,
+      "aprobado": true
+    },
+    {
+      "caso": "Paciente fuera de agenda administrativa",
+      "metodo": "GET",
+      "ruta": "/citas/consulta?medicoId=1&fecha=2026-11-02",
+      "esperado": 403,
+      "observado": 403,
+      "aprobado": true,
+      "mensaje": "Forbidden"
+    },
+    {
+      "caso": "Paciente fuera de configuración",
+      "metodo": "GET",
+      "ruta": "/configuracion",
+      "esperado": 403,
+      "observado": 403,
+      "aprobado": true,
+      "mensaje": "Forbidden"
+    },
+    {
+      "caso": "Agendador fuera de configuración",
+      "metodo": "GET",
+      "ruta": "/configuracion",
+      "esperado": 403,
+      "observado": 403,
+      "aprobado": true,
+      "mensaje": "Forbidden"
+    },
+    {
+      "caso": "Administrador configura",
+      "metodo": "GET",
+      "ruta": "/configuracion",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Médico consulta agenda propia",
+      "metodo": "GET",
+      "ruta": "/citas/consulta?medicoId=1&fecha=2026-11-02",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Médico no consulta agenda ajena",
+      "metodo": "GET",
+      "ruta": "/citas/consulta?medicoId=2&fecha=2026-11-02",
+      "esperado": 403,
+      "observado": 403,
+      "aprobado": true,
+      "mensaje": "Forbidden"
+    },
+    {
+      "caso": "Paciente fuera del historial administrativo",
+      "metodo": "GET",
+      "ruta": "/citas/historial?cedula=1061789234",
+      "esperado": 403,
+      "observado": 403,
+      "aprobado": true,
+      "mensaje": "Forbidden"
+    },
+    {
+      "caso": "Agendador consulta historial",
+      "metodo": "GET",
+      "ruta": "/citas/historial?cedula=1061789234",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Exportación CSV autorizada",
+      "metodo": "GET",
+      "ruta": "/citas/exportar?medicoId=1&fecha=2026-11-02",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Historial rechaza cédula inválida",
+      "metodo": "GET",
+      "ruta": "/citas/historial?cedula=abc",
+      "esperado": 400,
+      "observado": 400,
+      "aprobado": true,
+      "mensaje": "Bad Request"
+    },
+    {
+      "caso": "Perfil nuevo de paciente",
+      "metodo": "POST",
+      "ruta": "/keycloak/perfil-paciente",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Paciente nuevo ve sus citas",
+      "metodo": "GET",
+      "ruta": "/citas/mias",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Perfil rechaza múltiples roles de aplicación",
+      "metodo": "GET",
+      "ruta": "/auth/me",
+      "esperado": 403,
+      "observado": 403,
+      "aprobado": true,
+      "mensaje": "Forbidden"
+    },
+    {
+      "caso": "Configuración rechaza múltiples roles de aplicación",
+      "metodo": "GET",
+      "ruta": "/configuracion",
+      "esperado": 403,
+      "observado": 200,
+      "aprobado": false
+    },
+    {
+      "caso": "Paciente reserva cita",
+      "metodo": "POST",
+      "ruta": "/citas",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Otro paciente no lee la cita",
+      "metodo": "GET",
+      "ruta": "/citas/1",
+      "esperado": 403,
+      "observado": 403,
+      "aprobado": true,
+      "mensaje": "Forbidden"
+    },
+    {
+      "caso": "Paciente cancela su cita",
+      "metodo": "PATCH",
+      "ruta": "/citas/1/cancelar",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Otro paciente ocupa franja liberada",
+      "metodo": "POST",
+      "ruta": "/citas",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Reactivar no crea doble reserva",
+      "metodo": "PATCH",
+      "ruta": "/citas/1/reactivar",
+      "esperado": 409,
+      "observado": 200,
+      "aprobado": false
+    }
+  ],
+  "administracion": {
+    "cliente": "piedrazul-postman-admin",
+    "flujo": "client_credentials",
+    "permisos": [
+      "query-users",
+      "view-users",
+      "manage-users",
+      "view-realm"
+    ],
+    "token_obtenido": true
+  },
+  "resumen": {
+    "casos": 25,
+    "aprobados": 23,
+    "fallidos": 2
+  }
+}

@@ -64,6 +64,10 @@ class CitaExportacionHistorialTest {
                 .andExpect(content().contentTypeCompatibleWith("text/csv"))
                 .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("attachment")))
                 .andExpect(header().string("Cache-Control", "no-store, max-age=0"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fecha")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Profesional")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(fechaHabil.toString())))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Laura")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Paciente")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Juan")));
     }

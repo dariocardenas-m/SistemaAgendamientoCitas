@@ -1,0 +1,47 @@
+@startuml
+title PiedraAzul · Vista de desarrollo · Organización del código
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam backgroundColor white
+top to bottom direction
+package "frontend/src · Vue / JavaScript" as FRONT {
+  package "router" as ROUTER
+  package "views" as VIEWS
+  package "components" as COMPS
+  package "stores\nauthStore / citasStore" as STORES
+  package "services\napi / identityProvider" as HTTP
+  ROUTER ..> VIEWS : resuelve rutas
+  ROUTER ..> STORES : consulta sesión y rol
+  VIEWS ..> COMPS : compone pantallas
+  VIEWS ..> STORES : estado compartido
+  VIEWS ..> HTTP : operaciones de agenda
+  STORES ..> HTTP : acceso y citas
+}
+package "backend/src/main/java/com/piedrazul · Java" as BACK {
+  package "citas\nController, Service, DTO, entidad, Repository" as CITAS
+  package "usuarios\nAuth, perfiles Keycloak, Usuario, Rol, Repository" as USERS
+  package "pacientes\nController, entidad, DTO, Repository" as PAT
+  package "medicos\nController, entidad, DTO, Repository" as MED
+  package "especialidades\nController, entidad, DTO, Repository" as ESP
+  package "config\nSeguridad, JWT, parámetros, errores y seeder" as CFG
+  CITAS ..> PAT
+  CITAS ..> MED
+  CITAS ..> USERS
+  CITAS ..> CFG
+  USERS ..> PAT
+  USERS ..> CFG
+  CFG ..> USERS
+  MED ..> USERS
+  MED ..> ESP
+  PAT ..> USERS
+}
+artifact "Recursos de configuración\napplication.yml\napplication-mysql.yml\napplication-keycloak.yml\nbackend/keycloak/piedrazul-realm.json" as RES
+HTTP ..> BACK : contrato HTTP / JSON / CSV
+BACK ..> RES : perfiles y configuración
+note bottom of BACK
+  Un backend y un despliegue de aplicación.
+  Los paquetes organizan responsabilidades, pero existen
+  dependencias cruzadas; no se afirma aislamiento automático.
+end note
+footer Se muestran dependencias principales observadas; cada paquete conserva las clases existentes
+@enduml

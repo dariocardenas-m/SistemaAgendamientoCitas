@@ -1,0 +1,44 @@
+@startuml
+title PiedraAzul · Vista +1 · Escenarios de la segunda iteración
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam backgroundColor white
+left to right direction
+actor Paciente as PAC
+actor Agendador as AGE
+actor "Médico / terapista" as MED
+actor Administrador as ADM
+actor "Keycloak\nProveedor externo" as KC
+rectangle "Solución PiedraAzul · Segunda iteración" {
+  usecase "HU-20\nIniciar sesión con Keycloak" as LOGIN
+  usecase "HU-18\nExportar agenda a CSV" as CSV
+  usecase "HU-19\nConsultar historial por cédula" as HIST
+  usecase "HU-21\nComprobar rol y alcance de los datos" as ACCESO
+  usecase "HU-22\nGestionar usuarios y roles\nen Keycloak mediante Postman" as USERS
+}
+PAC --> LOGIN
+AGE --> LOGIN
+MED --> LOGIN
+ADM --> LOGIN
+AGE --> CSV
+MED --> CSV
+ADM --> CSV
+AGE --> HIST
+MED --> HIST
+ADM --> HIST
+ADM --> USERS
+KC --> LOGIN
+KC --> USERS
+CSV ..> ACCESO : <<include>>
+HIST ..> ACCESO : <<include>>
+note bottom of ACCESO
+  HU-21 también protege las operaciones vigentes:
+  paciente sobre citas propias; profesional sobre su agenda;
+  parametrización reservada al administrador.
+end note
+note bottom of USERS
+  Se ejecuta contra la Admin REST API de Keycloak.
+  La API de PiedraAzul no implementa un administrador de identidades.
+end note
+footer Login es precondición de las operaciones privadas; no se repite como include en cada solicitud
+@enduml
