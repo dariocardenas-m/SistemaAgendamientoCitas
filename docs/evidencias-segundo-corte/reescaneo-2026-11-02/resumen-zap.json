@@ -1,0 +1,51 @@
+{
+  "inicio_utc": "2026-11-02T05:42:08.766041+00:00",
+  "fin_utc": "2026-11-02T05:42:18.444330+00:00",
+  "version_zap": "2.16.0",
+  "modo": "protect; contexto en alcance",
+  "autenticacion": "escaneo web sin autenticar; matriz de roles separada con tokens reales",
+  "incluido": [
+    "http://localhost:5173/",
+    "http://localhost:8080/api/"
+  ],
+  "objetivo_activo": "http://localhost:5173/login; sin recursión",
+  "excluido": [
+    "Keycloak 8081",
+    "ZAP API 8090",
+    "otros equipos y servicios"
+  ],
+  "datos": "ficticios; MySQL de auditoría aislado en 3317",
+  "spider_id": "0",
+  "spider_completo": true,
+  "active_scan_id": "0",
+  "active_scan_completo": true,
+  "limite_active_scan_minutos": 3,
+  "registros_pasivos_pendientes": 0,
+  "total_alertas": 20,
+  "tipos": [
+    {
+      "plugin_id": "10027",
+      "alerta": "Information Disclosure - Suspicious Comments",
+      "riesgo": "Informational",
+      "instancias": 1
+    },
+    {
+      "plugin_id": "10055",
+      "alerta": "CSP: style-src unsafe-inline",
+      "riesgo": "Medium",
+      "instancias": 9
+    },
+    {
+      "plugin_id": "10109",
+      "alerta": "Modern Web Application",
+      "riesgo": "Informational",
+      "instancias": 9
+    },
+    {
+      "plugin_id": "10116",
+      "alerta": "ZAP is Out of Date",
+      "riesgo": "Low",
+      "instancias": 1
+    }
+  ]
+}

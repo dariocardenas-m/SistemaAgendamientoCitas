@@ -1,0 +1,107 @@
+{
+  "fecha": "2026-11-02",
+  "casos": [
+    {
+      "servidor": "desarrollo",
+      "ruta": "/",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081 ws://localhost:5173 ws://127.0.0.1:5173; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    },
+    {
+      "servidor": "desarrollo",
+      "ruta": "/login",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081 ws://localhost:5173 ws://127.0.0.1:5173; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    },
+    {
+      "servidor": "desarrollo",
+      "ruta": "/paciente",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081 ws://localhost:5173 ws://127.0.0.1:5173; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    },
+    {
+      "servidor": "desarrollo",
+      "ruta": "/agendador",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081 ws://localhost:5173 ws://127.0.0.1:5173; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    },
+    {
+      "servidor": "desarrollo",
+      "ruta": "/admin",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081 ws://localhost:5173 ws://127.0.0.1:5173; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    },
+    {
+      "servidor": "preview",
+      "ruta": "/",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    },
+    {
+      "servidor": "preview",
+      "ruta": "/login",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    },
+    {
+      "servidor": "preview",
+      "ruta": "/paciente",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    },
+    {
+      "servidor": "preview",
+      "ruta": "/agendador",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    },
+    {
+      "servidor": "preview",
+      "ruta": "/admin",
+      "estado": 200,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:8081; frame-src http://localhost:8081; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' http://localhost:8081",
+      "x_frame_options": "DENY",
+      "nosniff": "nosniff",
+      "recursos_js_css": "HTTP 200",
+      "aprobado": true
+    }
+  ],
+  "aprobados": 10,
+  "limite": "Verificación HTTP de cabeceras y recursos; no equivale a navegación visual ni a verificar CSP en un navegador."
+}

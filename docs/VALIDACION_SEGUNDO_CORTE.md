@@ -103,3 +103,7 @@ Repository, DTO, Service Layer e inyección de dependencias mantienen su clasifi
 - [Inicio de Keycloak mediante distribución ZIP](https://www.keycloak.org/getting-started/getting-started-zip).
 - [API de OWASP ZAP](https://www.zaproxy.org/docs/api/).
 - [OWASP Top 10:2021, A05](https://top10.owasp.org/2021/A05_2021-Security_Misconfiguration/).
+
+## Actualización del 2 de noviembre
+Los dos hallazgos originales ya no aparecen en el reescaneo local posterior a la corrección. Permanece una advertencia media de estilos en línea. Ver [informe posterior](REESCANEO_ZAP_2026-11-02.md) y sus evidencias; el estado abierto descrito arriba corresponde al análisis inicial.
+
