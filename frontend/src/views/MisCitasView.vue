@@ -8,6 +8,19 @@
       <router-link to="/agendar" class="btn-primary">Agendar Nueva Cita</router-link>
     </div>
 
+    <div v-if="errorCarga" class="card mb-6 flex flex-col items-start gap-3 border border-rose-200 p-5 text-sm text-rose-700 sm:flex-row sm:items-center sm:justify-between" role="alert">
+      <p>{{ errorCarga }}</p>
+      <button class="font-semibold text-brand" :disabled="cargandoHistorial" @click="cargarHistorial">
+        {{ cargandoHistorial ? 'Cargando…' : 'Reintentar' }}
+      </button>
+    </div>
+    <p v-else-if="cargandoHistorial" class="card mb-6 p-5 text-center text-sm text-slate-500" role="status">
+      Cargando tus citas…
+    </p>
+    <p v-if="errorCancelacion" class="card mb-6 border border-rose-200 p-4 text-sm text-rose-700" role="alert">
+      {{ errorCancelacion }}
+    </p>
+
     <div class="card mb-6 p-5">
       <div class="mb-4 flex items-center justify-between">
         <p class="text-xs font-bold uppercase tracking-wide text-slate-400">Filtros de búsqueda</p>
@@ -17,21 +30,30 @@
         </div>
       </div>
       <div class="grid gap-3 md:grid-cols-3">
-        <select v-model="filtroEstado" class="input-field">
-          <option value="">Todos los estados</option>
-          <option value="CONFIRMADA">Confirmada</option>
-          <option value="CANCELADA">Cancelada</option>
-          <option value="ATENDIDA">Atendida</option>
-        </select>
-        <select v-model="filtroEsp" class="input-field">
-          <option value="">Todas las especialidades</option>
-          <option v-for="e in especialidades" :key="e" :value="e">{{ e }}</option>
-        </select>
-        <input v-model="filtroFecha" type="date" class="input-field" />
+        <label class="text-xs font-semibold text-slate-500">Estado
+          <select v-model="filtroEstado" class="input-field mt-1">
+            <option value="">Todos los estados</option>
+            <option value="CONFIRMADA">Confirmada</option>
+            <option value="CANCELADA">Cancelada</option>
+            <option value="ATENDIDA">Atendida</option>
+          </select>
+        </label>
+        <label class="text-xs font-semibold text-slate-500">Especialidad
+          <select v-model="filtroEsp" class="input-field mt-1">
+            <option value="">Todas las especialidades</option>
+            <option v-for="e in especialidades" :key="e" :value="e">{{ e }}</option>
+          </select>
+        </label>
+        <label class="text-xs font-semibold text-slate-500">Fecha
+          <input v-model="filtroFecha" type="date" class="input-field mt-1" />
+        </label>
       </div>
     </div>
 
     <div v-if="vista==='tarjetas'" class="grid gap-4 md:grid-cols-2">
+      <p v-if="!cargandoHistorial && !errorCarga && !filtradas.length" class="card p-6 text-center text-sm text-slate-500 md:col-span-2" role="status">
+        No hay citas que coincidan con los filtros seleccionados.
+      </p>
       <article v-for="c in filtradas" :key="c.id" class="card p-5">
         <div class="mb-3 flex items-center justify-between">
           <span class="text-xs font-bold text-slate-400">{{ c.codigo }}</span>
@@ -49,7 +71,9 @@
           <button class="font-semibold text-brand" @click="abrirComprobante(c)">Ver Comprobante</button>
           <div v-if="c.estado==='CONFIRMADA'" class="flex gap-3">
             <button class="font-semibold text-blue-600" @click="editar = c">Editar Cita</button>
-            <button class="font-semibold text-rose-500" @click="cancelar(c)">Cancelar Cita</button>
+            <button class="font-semibold text-rose-500 disabled:cursor-not-allowed disabled:opacity-50" :disabled="cancelandoIds.has(c.id)" @click="cancelar(c)">
+              {{ cancelandoIds.has(c.id) ? 'Cancelando…' : 'Cancelar Cita' }}
+            </button>
           </div>
         </div>
       </article>
@@ -69,17 +93,24 @@
           </tr>
         </thead>
         <tbody>
+          <tr v-if="!cargandoHistorial && !errorCarga && !filtradas.length">
+            <td colspan="7" class="px-4 py-8 text-center text-slate-500" role="status">
+              No hay citas que coincidan con los filtros seleccionados.
+            </td>
+          </tr>
           <tr v-for="c in filtradas" :key="c.id" class="border-t">
             <td class="px-4 py-3">{{ c.codigo }}</td>
             <td class="px-4 py-3">{{ c.especialidad }}</td>
             <td class="px-4 py-3">{{ c.medicoNombre }}</td>
-            <td class="px-4 py-3">{{ c.fecha }}</td>
+            <td class="px-4 py-3">{{ formatear(c.fecha) }}</td>
             <td class="px-4 py-3">{{ c.hora?.slice(0,5) }}</td>
             <td class="px-4 py-3"><span class="rounded-full px-2 py-1 text-xs" :class="badge(c.estado)">{{ etiqueta(c.estado) }}</span></td>
             <td class="px-4 py-3 text-right">
               <button class="mr-3 text-brand" @click="abrirComprobante(c)">Comprobante</button>
               <button v-if="c.estado==='CONFIRMADA'" class="mr-3 text-blue-600" @click="editar = c">Editar</button>
-              <button v-if="c.estado==='CONFIRMADA'" class="text-rose-500" @click="cancelar(c)">Cancelar</button>
+              <button v-if="c.estado==='CONFIRMADA'" class="text-rose-500 disabled:cursor-not-allowed disabled:opacity-50" :disabled="cancelandoIds.has(c.id)" @click="cancelar(c)">
+                {{ cancelandoIds.has(c.id) ? 'Cancelando…' : 'Cancelar' }}
+              </button>
             </td>
           </tr>
         </tbody>
@@ -106,8 +137,24 @@ const filtroFecha = ref('')
 const seleccionada = ref(null)
 const editar = ref(null)
 const comprobanteActualizado = ref(false)
+const errorCarga = ref('')
+const cargandoHistorial = ref(false)
+const errorCancelacion = ref('')
+const cancelandoIds = ref(new Set())
 
-onMounted(() => store.cargarMisCitas())
+onMounted(cargarHistorial)
+
+async function cargarHistorial() {
+  cargandoHistorial.value = true
+  errorCarga.value = ''
+  try {
+    await store.cargarMisCitas()
+  } catch (error) {
+    errorCarga.value = error.response?.data?.message || 'No se pudieron cargar tus citas. Verifica tu conexión e intenta de nuevo.'
+  } finally {
+    cargandoHistorial.value = false
+  }
+}
 
 const especialidades = computed(() => [...new Set(store.misCitas.map(c => c.especialidad))])
 
@@ -130,9 +177,20 @@ function formatear(f) {
   return new Date(f + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 async function cancelar(c) {
+  if (cancelandoIds.value.has(c.id)) return
   if (!confirm('¿Desea cancelar esta cita?')) return
-  await api.patch(`/citas/${c.id}/cancelar`)
-  await store.cargarMisCitas()
+  cancelandoIds.value = new Set(cancelandoIds.value).add(c.id)
+  errorCancelacion.value = ''
+  try {
+    await api.patch(`/citas/${c.id}/cancelar`)
+    await store.cargarMisCitas()
+  } catch (error) {
+    errorCancelacion.value = error.response?.data?.message || 'No se pudo cancelar la cita. Intenta de nuevo.'
+  } finally {
+    const ids = new Set(cancelandoIds.value)
+    ids.delete(c.id)
+    cancelandoIds.value = ids
+  }
 }
 
 function abrirComprobante(c) {
