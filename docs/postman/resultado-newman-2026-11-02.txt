@@ -1,0 +1,74 @@
+(node:15312) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+newman
+
+PiedraAzul - Gestión Keycloak (datos ficticios)
+
+Root 01 - Obtener token de la cuenta de servicio
+  POST http://localhost:8081/realms/piedrazul/protocol/openid-connect/token [200 OK, 1.89kB, 526ms]
+  Pass  HTTP 200
+  Pass  Token presente
+
+Root 02 - Crear usuario ficticio
+  POST http://localhost:8081/admin/realms/piedrazul/users [201 Created, 318B, 522ms]
+  Pass  HTTP 201
+
+Root 03 - Consultar usuario creado
+  GET http://localhost:8081/admin/realms/piedrazul/users/7c859b12-f284-415b-a8f1-e99eb4e3b87b [200 OK, 702B, 89ms]
+  Pass  HTTP 200
+  Pass  Identidad creada correcta
+
+Root 04 - Consultar rol PACIENTE
+  GET http://localhost:8081/admin/realms/piedrazul/roles/PACIENTE [200 OK, 511B, 58ms]
+  Pass  HTTP 200
+  Pass  Rol de aplicación
+
+Root 05 - Asignar rol al usuario
+  POST http://localhost:8081/admin/realms/piedrazul/users/7c859b12-f284-415b-a8f1-e99eb4e3b87b/role-mappings/realm [204 No Content, 203B, 81ms]
+  Pass  HTTP 204
+
+Root 06 - Comprobar rol asignado
+  GET http://localhost:8081/admin/realms/piedrazul/users/7c859b12-f284-415b-a8f1-e99eb4e3b87b/role-mappings/realm [200 OK, 703B, 20ms]
+  Pass  HTTP 200
+  Pass  Tiene PACIENTE
+
+Root 07 - Revocar rol
+  DELETE http://localhost:8081/admin/realms/piedrazul/users/7c859b12-f284-415b-a8f1-e99eb4e3b87b/role-mappings/realm [204 No Content, 203B, 59ms]
+  Pass  HTTP 204
+
+Root 08 - Comprobar rol revocado
+  GET http://localhost:8081/admin/realms/piedrazul/users/7c859b12-f284-415b-a8f1-e99eb4e3b87b/role-mappings/realm [200 OK, 494B, 16ms]
+  Pass  HTTP 200
+  Pass  Ya no tiene PACIENTE
+
+Root 09 - Eliminar solo el usuario de esta prueba
+  DELETE http://localhost:8081/admin/realms/piedrazul/users/7c859b12-f284-415b-a8f1-e99eb4e3b87b [204 No Content, 199B, 719ms]
+  Pass  HTTP 204
+
+Root 10 - Comprobar eliminación
+  GET http://localhost:8081/admin/realms/piedrazul/users/7c859b12-f284-415b-a8f1-e99eb4e3b87b [404 Not Found, 280B, 48ms]
+  Pass  HTTP 404
+
+Root 11 - Denegar administración sin token
+  GET http://localhost:8081/admin/realms/piedrazul/users [401 Unauthorized, 290B, 12ms]
+  Pass  HTTP 401
+
+---------------------------------------------------------------------
+|                         |           executed |             failed |
+--------------------------+--------------------+---------------------
+|              iterations |                  1 |                  0 |
+--------------------------+--------------------+---------------------
+|                requests |                 11 |                  0 |
+--------------------------+--------------------+---------------------
+|            test-scripts |                 11 |                  0 |
+--------------------------+--------------------+---------------------
+|      prerequest-scripts |                  0 |                  0 |
+--------------------------+--------------------+---------------------
+|              assertions |                 16 |                  0 |
+---------------------------------------------------------------------
+| total run duration: 3.1s                                          |
+---------------------------------------------------------------------
+| total data received: 2.92kB (approx)                              |
+---------------------------------------------------------------------
+| average response time: 195ms [min: 12ms, max: 719ms, s.d.: 246ms] |
+---------------------------------------------------------------------

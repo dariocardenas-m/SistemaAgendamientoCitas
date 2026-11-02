@@ -1,0 +1,142 @@
+{
+  "fecha": "2026-11-02",
+  "tests": 57,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "clases": [
+    {
+      "name": "com.piedrazul.citas.CitaCsvExportServiceTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.citas.CitaEditarIT",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.citas.CitaExportacionHistorialTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.citas.CitaServiceEditarTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.citas.CitaServiceReactivarTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.citas.DominioPersistenciaIT",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.config.JwtServiceTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.config.KeycloakAuthenticationIT",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.config.KeycloakJwtAuthenticationConverterTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.config.KeycloakRealmImportTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.usuarios.AuthServiceTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.piedrazul.usuarios.PerfilesKeycloakServiceTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "jacoco": {
+    "LINE": {
+      "covered": 948,
+      "total": 1171,
+      "percent": 80.96
+    },
+    "BRANCH": {
+      "covered": 173,
+      "total": 306,
+      "percent": 56.54
+    },
+    "INSTRUCTION": {
+      "covered": 4136,
+      "total": 5277,
+      "percent": 78.38
+    }
+  },
+  "scope": "54 clases de backend; no frontend ni seguridad absoluta",
+  "postman": {
+    "requests": 11,
+    "assertions": 16,
+    "failed": 0,
+    "runner": "Newman",
+    "real_keycloak": true,
+    "sin_secretos_en_repo": true
+  },
+  "frontend": {
+    "build": "aprobado",
+    "revision": "MisCitasView de Jors + orden de inicialización OIDC corregido",
+    "navegador": [
+      "Login paciente por OIDC",
+      "Listado con citas ficticias",
+      "Filtro por estado",
+      "Vacío en tarjetas/tabla",
+      "Error de red con recuperación Reintentar",
+      "Cancelar confirmación y botón Cancelando deshabilitado",
+      "Cancelación final visible",
+      "URL sin code/state/iss después del retorno SSO"
+    ],
+    "entorno": "localhost:5173, API 8080, Keycloak 8081, MySQL 3317",
+    "limites": [
+      "Prueba temporal 5174 rechazada por CORS esperado; se repitió en el origen permitido 5173 sin modificar CORS",
+      "No se certifica WCAG AA ni todas las pantallas"
+    ]
+  },
+  "pendiente_equipo": [
+    "Grabar y publicar video",
+    "Añadir URL real al documento"
+  ]
+}

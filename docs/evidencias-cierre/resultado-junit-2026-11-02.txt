@@ -1,0 +1,29 @@
+Ejecución real: 2026-11-02; Java 17; mvn test.
+[INFO] Running com.piedrazul.citas.CitaCsvExportServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.109 s -- in com.piedrazul.citas.CitaCsvExportServiceTest
+[INFO] Running com.piedrazul.citas.CitaEditarIT
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 17.79 s -- in com.piedrazul.citas.CitaEditarIT
+[INFO] Running com.piedrazul.citas.CitaExportacionHistorialTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.366 s -- in com.piedrazul.citas.CitaExportacionHistorialTest
+[INFO] Running com.piedrazul.citas.CitaServiceEditarTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.777 s -- in com.piedrazul.citas.CitaServiceEditarTest
+[INFO] Running com.piedrazul.citas.CitaServiceReactivarTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.402 s -- in com.piedrazul.citas.CitaServiceReactivarTest
+[INFO] Running com.piedrazul.citas.DominioPersistenciaIT
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.586 s -- in com.piedrazul.citas.DominioPersistenciaIT
+[INFO] Running com.piedrazul.config.JwtServiceTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in com.piedrazul.config.JwtServiceTest
+[INFO] Running com.piedrazul.config.KeycloakAuthenticationIT
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.618 s -- in com.piedrazul.config.KeycloakAuthenticationIT
+[INFO] Running com.piedrazul.config.KeycloakJwtAuthenticationConverterTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.piedrazul.config.KeycloakJwtAuthenticationConverterTest
+[INFO] Running com.piedrazul.config.KeycloakRealmImportTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.piedrazul.config.KeycloakRealmImportTest
+[INFO] Running com.piedrazul.usuarios.AuthServiceTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.403 s -- in com.piedrazul.usuarios.AuthServiceTest
+[INFO] Running com.piedrazul.usuarios.PerfilesKeycloakServiceTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.077 s -- in com.piedrazul.usuarios.PerfilesKeycloakServiceTest
+[INFO] Tests run: 57, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  45.966 s
+[INFO] Finished at: 2026-11-02T17:22:15-05:00

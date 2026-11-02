@@ -1,0 +1,385 @@
+{
+  "info": {
+    "name": "PiedraAzul - Gestión Keycloak (datos ficticios)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecuta en orden con cuenta de servicio de auditoría. Crea un usuario ficticio, asigna/revoca PACIENTE y elimina ese usuario. No incluir ni exportar secretos/tokens en evidencias."
+  },
+  "item": [
+    {
+      "name": "01 - Obtener token de la cuenta de servicio",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "client_credentials",
+              "type": "text"
+            },
+            {
+              "key": "client_id",
+              "value": "{{client_id}}",
+              "type": "text"
+            },
+            {
+              "key": "client_secret",
+              "value": "{{client_secret}}",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Token presente',()=>pm.expect(pm.response.json().access_token).to.be.a('string'));",
+              "pm.environment.set('admin_token',pm.response.json().access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Crear usuario ficticio",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/users",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"{{test_username}}\", \"email\": \"{{test_email}}\", \"enabled\": true, \"emailVerified\": true}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "pm.environment.set('test_user_id',pm.response.headers.get('Location').split('/').pop());"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Consultar usuario creado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/users/{{test_user_id}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Identidad creada correcta',()=>pm.expect(pm.response.json().username).to.eql(pm.environment.get('test_username')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Consultar rol PACIENTE",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/roles/PACIENTE",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.environment.set('role_json',JSON.stringify(pm.response.json()));",
+              "pm.test('Rol de aplicación',()=>pm.expect(pm.response.json().name).to.eql('PACIENTE'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Asignar rol al usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/users/{{test_user_id}}/role-mappings/realm",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "[{{role_json}}]",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Comprobar rol asignado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/users/{{test_user_id}}/role-mappings/realm",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Tiene PACIENTE',()=>pm.expect(pm.response.json().map(r=>r.name)).to.include('PACIENTE'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Revocar rol",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/users/{{test_user_id}}/role-mappings/realm",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "[{{role_json}}]",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Comprobar rol revocado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/users/{{test_user_id}}/role-mappings/realm",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Ya no tiene PACIENTE',()=>pm.expect(pm.response.json().map(r=>r.name)).not.to.include('PACIENTE'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Eliminar solo el usuario de esta prueba",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/users/{{test_user_id}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Comprobar eliminación",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/users/{{test_user_id}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Denegar administración sin token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{keycloak_url}}/admin/realms/{{realm}}/users",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "pm.environment.unset('admin_token');pm.environment.unset('role_json');pm.environment.unset('test_user_id');"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
