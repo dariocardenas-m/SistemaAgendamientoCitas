@@ -19,3 +19,5 @@ Para usabilidad, explicar la inspección Gestalt y sus hallazgos; no mencionar u
 ## Límites declarados
 
 La entrega conserva como seguimiento la revisión visual interactiva con la CSP, el endurecimiento de estilos en línea y la validación del servidor productivo. No se certifica cobertura total del dominio, ausencia de vulnerabilidades o pruebas de carga. Jira no fue modificado para cerrar tareas automáticamente. Las sesiones con participantes se recomiendan como siguiente validación, no como actividad ya ejecutada.
+
+Actualización visual del 2 de noviembre: login y navegación del agendador comprobados en Brave con la CSP aplicada. Se incorporaron cuatro capturas K1–K4 al documento; dos son de la aplicación y dos de un informe de consultas HTTP reales. No se completó la consola administrativa ni se usó Postman. Ver `EVIDENCIAS_VISUALES_KEYCLOAK.md` para el alcance y los originales.

@@ -1,0 +1,80 @@
+{
+  "fecha_utc": "2026-11-02T17:51:20.636202+00:00",
+  "origen": "Consultas reales por Admin REST API y pruebas HTTP. No es una captura de Postman ni de la consola administrativa.",
+  "realm": {
+    "realm": "piedrazul",
+    "enabled": true,
+    "roles_aplicacion": [
+      "PACIENTE",
+      "AGENDADOR",
+      "MEDICO_TERAPISTA",
+      "ADMINISTRADOR"
+    ]
+  },
+  "cliente": {
+    "clientId": "piedrazul-app",
+    "publicClient": true,
+    "standardFlowEnabled": true,
+    "implicitFlowEnabled": false,
+    "directAccessGrantsEnabled": false,
+    "pkce": "S256",
+    "redirectUris": [
+      "https://oauth.pstmn.io/v1/browser-callback",
+      "http://localhost:5173/*"
+    ]
+  },
+  "usuario_ficticio": {
+    "username": "audit-agendador",
+    "enabled": true,
+    "roles_asignados": [
+      "AGENDADOR"
+    ]
+  },
+  "claims_token": {
+    "iss": "http://localhost:8081/realms/piedrazul",
+    "aud": [
+      "piedrazul-api",
+      "account"
+    ],
+    "azp": "piedrazul-app",
+    "roles_aplicacion": [
+      "AGENDADOR"
+    ]
+  },
+  "comprobaciones": [
+    {
+      "caso": "Perfil autorizado",
+      "metodo": "GET",
+      "ruta": "/api/auth/me",
+      "esperado": 200,
+      "observado": 200,
+      "aprobado": true
+    },
+    {
+      "caso": "Rol sin permiso administrativo",
+      "metodo": "GET",
+      "ruta": "/api/configuracion",
+      "esperado": 403,
+      "observado": 403,
+      "aprobado": true
+    },
+    {
+      "caso": "Petición sin token",
+      "metodo": "GET",
+      "ruta": "/api/citas/mias",
+      "esperado": 401,
+      "observado": 401,
+      "aprobado": true
+    },
+    {
+      "caso": "Firma alterada",
+      "metodo": "GET",
+      "ruta": "/api/auth/me",
+      "esperado": 401,
+      "observado": 401,
+      "aprobado": true
+    }
+  ],
+  "validacion_token": "La API aceptó el token y devolvió 200. La lectura del payload por sí sola no valida su firma.",
+  "limite_consola": "La consola administrativa no pudo completar la comprobación del iframe en este navegador. No se atribuye esta vista de reporte a la interfaz de Keycloak."
+}
