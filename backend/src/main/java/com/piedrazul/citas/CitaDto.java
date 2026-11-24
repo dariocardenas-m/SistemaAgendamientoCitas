@@ -23,6 +23,7 @@ public class CitaDto {
     private Integer duracionMinutos;
     private ModalidadCita modalidad;
     private String motivo;
+    private String justificacionCancelacion;
     private EstadoCita estado;
 
     public static CitaDto from(Cita c) {
@@ -45,6 +46,7 @@ public class CitaDto {
         dto.duracionMinutos = c.getDuracionMinutos();
         dto.modalidad = c.getModalidad();
         dto.motivo = c.getMotivo();
+        dto.justificacionCancelacion = c.getJustificacionCancelacion();
         dto.estado = c.getEstado();
         return dto;
     }
@@ -119,6 +121,10 @@ public class CitaDto {
 
     public String getMotivo() {
         return motivo;
+    }
+
+    public String getJustificacionCancelacion() {
+        return justificacionCancelacion;
     }
 
     public EstadoCita getEstado() {

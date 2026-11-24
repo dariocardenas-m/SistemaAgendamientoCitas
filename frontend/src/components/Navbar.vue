@@ -18,6 +18,7 @@
         <router-link v-if="auth.rol === 'PACIENTE'" to="/agendar" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/agendar')">Agendar Cita</router-link>
         <router-link v-if="auth.rol === 'PACIENTE'" to="/mis-citas" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/mis-citas')">Mis Citas</router-link>
         <router-link v-if="['AGENDADOR','ADMINISTRADOR','MEDICO_TERAPISTA'].includes(auth.rol)" to="/agendador" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/agendador')">Gestión de Citas</router-link>
+        <router-link v-if="['AGENDADOR','ADMINISTRADOR','MEDICO_TERAPISTA'].includes(auth.rol)" to="/reportes/citas" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/reportes/citas')">Reporte anual</router-link>
         <router-link v-if="auth.rol === 'ADMINISTRADOR'" to="/admin" class="rounded-full px-3 py-2 text-sm font-semibold" :class="linkClass('/admin')">Parametrización</router-link>
       </div>
 

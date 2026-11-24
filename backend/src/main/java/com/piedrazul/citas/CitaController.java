@@ -3,6 +3,8 @@ package com.piedrazul.citas;
 import com.piedrazul.config.SeguridadUtil;
 import com.piedrazul.usuarios.Usuario;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -97,6 +99,12 @@ public class CitaController {
         return citaService.historialPorDocumento(seguridadUtil.usuarioActual(), cedula);
     }
 
+    @GetMapping("/reporte-anual")
+    @PreAuthorize("hasAnyRole('AGENDADOR','ADMINISTRADOR','MEDICO_TERAPISTA')")
+    public ReporteAnualCitasDto reporteAnual(@RequestParam @Min(1900) @Max(2100) int anio) {
+        return citaService.reporteAnual(seguridadUtil.usuarioActual(), anio);
+    }
+
     @GetMapping("/{id}")
     public CitaDto porId(@PathVariable Long id) {
         return citaService.porId(seguridadUtil.usuarioActual(), id);
@@ -110,8 +118,8 @@ public class CitaController {
 
     @PatchMapping("/{id}/cancelar")
     @PreAuthorize("hasAnyRole('PACIENTE','AGENDADOR','ADMINISTRADOR')")
-    public CitaDto cancelar(@PathVariable Long id) {
-        return citaService.cambiarEstado(seguridadUtil.usuarioActual(), id, EstadoCita.CANCELADA);
+    public CitaDto cancelar(@PathVariable Long id, @Valid @RequestBody CancelarCitaRequest request) {
+        return citaService.cancelar(seguridadUtil.usuarioActual(), id, request);
     }
 
     @PatchMapping("/{id}/atender")

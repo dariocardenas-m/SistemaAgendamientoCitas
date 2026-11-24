@@ -52,6 +52,9 @@ public class Cita {
     @Column(length = 500)
     private String motivo;
 
+    @Column(length = 500)
+    private String justificacionCancelacion;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoCita estado = EstadoCita.CONFIRMADA;
@@ -128,6 +131,14 @@ public class Cita {
 
     public void setMotivo(String motivo) {
         this.motivo = motivo;
+    }
+
+    public String getJustificacionCancelacion() {
+        return justificacionCancelacion;
+    }
+
+    public void setJustificacionCancelacion(String justificacionCancelacion) {
+        this.justificacionCancelacion = justificacionCancelacion;
     }
 
     public EstadoCita getEstado() {

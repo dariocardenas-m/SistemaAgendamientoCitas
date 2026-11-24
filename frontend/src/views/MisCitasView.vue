@@ -17,10 +17,6 @@
     <p v-else-if="cargandoHistorial" class="card mb-6 p-5 text-center text-sm text-slate-500" role="status">
       Cargando tus citas…
     </p>
-    <p v-if="errorCancelacion" class="card mb-6 border border-rose-200 p-4 text-sm text-rose-700" role="alert">
-      {{ errorCancelacion }}
-    </p>
-
     <div class="card mb-6 p-5">
       <div class="mb-4 flex items-center justify-between">
         <p class="text-xs font-bold uppercase tracking-wide text-slate-400">Filtros de búsqueda</p>
@@ -67,13 +63,15 @@
           <div><p class="text-xs text-slate-400">Hora</p>{{ c.hora?.slice(0,5) }} ({{ c.duracionMinutos }} min)</div>
         </div>
         <p class="mt-3 rounded-xl border border-brand/20 px-3 py-2 text-sm">Motivo: {{ c.motivo || 'Sin notas' }}</p>
+        <p v-if="c.estado==='CANCELADA' && c.justificacionCancelacion" class="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-800">
+          Justificación de cancelación: {{ c.justificacionCancelacion }}
+        </p>
         <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm">
           <button class="font-semibold text-brand" @click="abrirComprobante(c)">Ver Comprobante</button>
-          <div v-if="c.estado==='CONFIRMADA'" class="flex gap-3">
+          <div v-if="c.estado==='CONFIRMADA'" class="flex flex-wrap items-center gap-3">
             <button class="font-semibold text-blue-600" @click="editar = c">Editar Cita</button>
-            <button class="font-semibold text-rose-500 disabled:cursor-not-allowed disabled:opacity-50" :disabled="cancelandoIds.has(c.id)" @click="cancelar(c)">
-              {{ cancelandoIds.has(c.id) ? 'Cancelando…' : 'Cancelar Cita' }}
-            </button>
+            <button class="font-semibold text-rose-500 disabled:cursor-not-allowed disabled:text-slate-400" :disabled="!puedeCancelar(c)" :title="mensajePlazo(c)" @click="citaCancelar = c">Cancelar Cita</button>
+            <span v-if="!puedeCancelar(c)" class="basis-full text-xs text-slate-500">{{ mensajePlazo(c) }}</span>
           </div>
         </div>
       </article>
@@ -108,9 +106,7 @@
             <td class="px-4 py-3 text-right">
               <button class="mr-3 text-brand" @click="abrirComprobante(c)">Comprobante</button>
               <button v-if="c.estado==='CONFIRMADA'" class="mr-3 text-blue-600" @click="editar = c">Editar</button>
-              <button v-if="c.estado==='CONFIRMADA'" class="text-rose-500 disabled:cursor-not-allowed disabled:opacity-50" :disabled="cancelandoIds.has(c.id)" @click="cancelar(c)">
-                {{ cancelandoIds.has(c.id) ? 'Cancelando…' : 'Cancelar' }}
-              </button>
+              <button v-if="c.estado==='CONFIRMADA'" class="text-rose-500 disabled:text-slate-400" :disabled="!puedeCancelar(c)" :title="mensajePlazo(c)" @click="citaCancelar = c">Cancelar</button>
             </td>
           </tr>
         </tbody>
@@ -119,15 +115,16 @@
 
     <ComprobanteModal :cita="seleccionada" :actualizada="comprobanteActualizado" @ver-citas="cerrarComprobante" @inicio="cerrarComprobante" />
     <EditarCitaModal :cita="editar" @cerrar="editar = null" @guardada="onEditada" />
+    <CancelarCitaModal :cita="citaCancelar" @cerrar="citaCancelar = null" @guardada="onCancelada" />
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import api from '../services/api'
 import { useCitasStore } from '../stores/citasStore'
 import ComprobanteModal from '../components/ComprobanteModal.vue'
 import EditarCitaModal from '../components/EditarCitaModal.vue'
+import CancelarCitaModal from '../components/CancelarCitaModal.vue'
 
 const store = useCitasStore()
 const vista = ref('tarjetas')
@@ -136,11 +133,10 @@ const filtroEsp = ref('')
 const filtroFecha = ref('')
 const seleccionada = ref(null)
 const editar = ref(null)
+const citaCancelar = ref(null)
 const comprobanteActualizado = ref(false)
 const errorCarga = ref('')
 const cargandoHistorial = ref(false)
-const errorCancelacion = ref('')
-const cancelandoIds = ref(new Set())
 
 onMounted(cargarHistorial)
 
@@ -176,21 +172,25 @@ function etiqueta(e) {
 function formatear(f) {
   return new Date(f + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
 }
-async function cancelar(c) {
-  if (cancelandoIds.value.has(c.id)) return
-  if (!confirm('¿Desea cancelar esta cita?')) return
-  cancelandoIds.value = new Set(cancelandoIds.value).add(c.id)
-  errorCancelacion.value = ''
-  try {
-    await api.patch(`/citas/${c.id}/cancelar`)
-    await store.cargarMisCitas()
-  } catch (error) {
-    errorCancelacion.value = error.response?.data?.message || 'No se pudo cancelar la cita. Intenta de nuevo.'
-  } finally {
-    const ids = new Set(cancelandoIds.value)
-    ids.delete(c.id)
-    cancelandoIds.value = ids
-  }
+function puedeCancelar(c) {
+  return c.fecha >= fechaMinimaCancelacion()
+}
+function fechaMinimaCancelacion() {
+  const fecha = new Date()
+  fecha.setDate(fecha.getDate() + 2)
+  const anio = fecha.getFullYear()
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+  const dia = String(fecha.getDate()).padStart(2, '0')
+  return `${anio}-${mes}-${dia}`
+}
+function mensajePlazo(c) {
+  return puedeCancelar(c)
+    ? 'Se requiere una justificación para cancelar.'
+    : 'Solo puedes cancelar con al menos dos días calendario de anticipación.'
+}
+async function onCancelada() {
+  citaCancelar.value = null
+  await cargarHistorial()
 }
 
 function abrirComprobante(c) {

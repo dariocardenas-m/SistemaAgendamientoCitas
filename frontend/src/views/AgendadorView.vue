@@ -76,7 +76,13 @@
             </td>
             <td class="px-3 py-3">{{ c.pacienteDocumento }}</td>
             <td class="px-3 py-3">{{ c.pacienteTelefono }}</td>
-            <td class="px-3 py-3">{{ c.motivo }}</td>
+            <td class="px-3 py-3">
+              <template v-if="c.estado==='CANCELADA'">
+                <p class="text-xs text-slate-500">Justificación: {{ c.justificacionCancelacion || 'No registrada' }}</p>
+                <p v-if="c.motivo" class="mt-1 text-xs text-slate-400">Motivo de cita: {{ c.motivo }}</p>
+              </template>
+              <span v-else>{{ c.motivo || '—' }}</span>
+            </td>
             <td class="px-3 py-3">
               <span class="rounded-full px-2 py-1 text-xs font-semibold" :class="c.estado==='CANCELADA' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-brand'">{{ etiqueta(c.estado) }}</span>
             </td>
@@ -84,7 +90,7 @@
               <template v-if="c.estado==='CONFIRMADA'">
                 <button class="mr-3 text-xs font-semibold text-brand" @click="editar = c">Editar</button>
                 <button class="mr-3 text-xs font-semibold text-brand" @click="accion(c, 'atender')">Atendido</button>
-                <button class="text-xs font-semibold text-rose-500" @click="accion(c, 'cancelar')">Cancelar</button>
+                <button class="text-xs font-semibold text-rose-500 disabled:cursor-not-allowed disabled:text-slate-400" :disabled="!puedeCancelar(c)" title="La cancelación requiere al menos dos días calendario de anticipación." @click="accion(c, 'cancelar')">Cancelar</button>
               </template>
               <button v-else-if="c.estado==='CANCELADA'" class="text-xs font-semibold text-slate-500" @click="accion(c, 'reactivar')">Reactivar</button>
               <span v-else class="text-xs text-slate-400">—</span>
@@ -131,6 +137,7 @@
       @ver-citas="comprobante = null"
       @inicio="comprobante = null"
     />
+    <CancelarCitaModal :cita="citaCancelar" @cerrar="citaCancelar = null" @guardada="onCancelada" />
   </div>
 </template>
 
@@ -140,6 +147,7 @@ import api from '../services/api'
 import MetricCard from '../components/MetricCard.vue'
 import EditarCitaModal from '../components/EditarCitaModal.vue'
 import ComprobanteModal from '../components/ComprobanteModal.vue'
+import CancelarCitaModal from '../components/CancelarCitaModal.vue'
 import { useAuthStore } from '../stores/authStore'
 
 const auth = useAuthStore()
@@ -152,6 +160,7 @@ const busqueda = ref('')
 const filtroEstado = ref('')
 const editar = ref(null)
 const comprobante = ref(null)
+const citaCancelar = ref(null)
 const error = ref('')
 const cedula = ref('')
 const historial = ref([])
@@ -235,8 +244,24 @@ async function consultarHistorial() {
 }
 
 async function accion(c, tipo) {
+  if (tipo === 'cancelar') {
+    citaCancelar.value = c
+    return
+  }
   await api.patch(`/citas/${c.id}/${tipo}`)
   await consultar()
+}
+
+async function onCancelada() {
+  citaCancelar.value = null
+  await consultar()
+}
+
+function puedeCancelar(cita) {
+  const minimo = new Date()
+  minimo.setDate(minimo.getDate() + 2)
+  const fechaMinima = `${minimo.getFullYear()}-${String(minimo.getMonth() + 1).padStart(2, '0')}-${String(minimo.getDate()).padStart(2, '0')}`
+  return cita.fecha >= fechaMinima
 }
 
 async function onEditada(actualizada) {

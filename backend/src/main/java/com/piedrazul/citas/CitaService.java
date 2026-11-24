@@ -18,14 +18,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class CitaService {
+
+    private static final ZoneId ZONA_COLOMBIA = ZoneId.of("America/Bogota");
 
     private final CitaRepository citaRepository;
     private final MedicoRepository medicoRepository;
@@ -184,6 +189,85 @@ public class CitaService {
         }
         cita.setEstado(nuevo);
         return CitaDto.from(citaRepository.save(cita));
+    }
+
+    @Transactional
+    public CitaDto cancelar(Usuario actor, Long citaId, CancelarCitaRequest request) {
+        Cita cita = citaRepository.lockById(citaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Cita no encontrada"));
+        validarPropiedadDeCita(actor, cita, "CANCELAR_CITA");
+        if (cita.getEstado() != EstadoCita.CONFIRMADA) {
+            throw new ReglaNegocioException("Solo se pueden cancelar citas confirmadas.");
+        }
+        String justificacion = request.getJustificacion() == null ? "" : request.getJustificacion().trim();
+        if (justificacion.isEmpty()) {
+            throw new ReglaNegocioException("La justificación de cancelación es obligatoria.");
+        }
+        LocalDate fechaMinima = LocalDate.now(ZONA_COLOMBIA).plusDays(2);
+        if (cita.getFecha().isBefore(fechaMinima)) {
+            throw new ReglaNegocioException("La cita solo se puede cancelar con al menos dos días calendario de anticipación.");
+        }
+        cita.setEstado(EstadoCita.CANCELADA);
+        cita.setJustificacionCancelacion(justificacion);
+        return CitaDto.from(citaRepository.save(cita));
+    }
+
+    @Transactional(readOnly = true)
+    public ReporteAnualCitasDto reporteAnual(Usuario actor, int anio) {
+        if (anio < 1900 || anio > 2100) {
+            throw new ReglaNegocioException("El año debe estar entre 1900 y 2100.");
+        }
+        Long medicoId = null;
+        if (actor.getRol() == Rol.MEDICO_TERAPISTA) {
+            medicoId = medicoRepository.findByUsuario(actor)
+                    .orElseThrow(() -> accesoDenegado(actor, "REPORTE_ANUAL_CITAS", null))
+                    .getId();
+        } else if (actor.getRol() != Rol.AGENDADOR && actor.getRol() != Rol.ADMINISTRADOR) {
+            throw accesoDenegado(actor, "REPORTE_ANUAL_CITAS", null);
+        }
+
+        Long medicoFiltro = medicoId;
+        List<Object[]> filas = citaRepository.reporteAnual(
+                LocalDate.of(anio, 1, 1), LocalDate.of(anio + 1, 1, 1), medicoId);
+        Map<Long, Map<Integer, long[]>> conteos = new LinkedHashMap<>();
+        Map<Long, String> nombres = new LinkedHashMap<>();
+        if (filas.isEmpty()) {
+            securityAuditLogger.consultaExitosa(actor, "REPORTE_ANUAL_CITAS");
+            return new ReporteAnualCitasDto(anio, List.of());
+        }
+        medicoRepository.findAllByOrderByNombreCompletoAsc().stream()
+                .filter(medico -> medicoFiltro == null || medico.getId().equals(medicoFiltro))
+                .forEach(medico -> {
+                    nombres.put(medico.getId(), medico.getNombreCompleto());
+                    conteos.put(medico.getId(), new LinkedHashMap<>());
+                });
+        for (Object[] fila : filas) {
+            Long id = (Long) fila[0];
+            String nombre = (String) fila[1];
+            int mes = ((Number) fila[2]).intValue();
+            EstadoCita estado = (EstadoCita) fila[3];
+            long total = ((Number) fila[4]).longValue();
+            nombres.putIfAbsent(id, nombre);
+            long[] estadoMes = conteos.computeIfAbsent(id, ignorado -> new LinkedHashMap<>())
+                    .computeIfAbsent(mes, ignorado -> new long[3]);
+            switch (estado) {
+                case CONFIRMADA -> estadoMes[0] = total;
+                case ATENDIDA -> estadoMes[1] = total;
+                case CANCELADA -> estadoMes[2] = total;
+            }
+        }
+
+        List<SerieMedicoReporteDto> medicos = conteos.keySet().stream().map(id -> {
+            Map<Integer, long[]> porMes = conteos.get(id);
+            List<CitasPorMesDto> meses = new ArrayList<>(12);
+            for (int mes = 1; mes <= 12; mes++) {
+                long[] valores = porMes.getOrDefault(mes, new long[3]);
+                meses.add(new CitasPorMesDto(mes, valores[0], valores[1], valores[2]));
+            }
+            return new SerieMedicoReporteDto(id, nombres.get(id), meses);
+        }).toList();
+        securityAuditLogger.consultaExitosa(actor, "REPORTE_ANUAL_CITAS");
+        return new ReporteAnualCitasDto(anio, medicos);
     }
 
     @Transactional

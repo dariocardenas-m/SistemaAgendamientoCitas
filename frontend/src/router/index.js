@@ -25,6 +25,12 @@ const routes = [
     meta: { auth: true, roles: ['AGENDADOR', 'ADMINISTRADOR', 'MEDICO_TERAPISTA'] }
   },
   {
+    path: '/reportes/citas',
+    name: 'reporte-citas',
+    component: () => import('../views/ReporteCitasView.vue'),
+    meta: { auth: true, roles: ['AGENDADOR', 'ADMINISTRADOR', 'MEDICO_TERAPISTA'] }
+  },
+  {
     path: '/admin',
     name: 'admin',
     component: () => import('../views/AdminConfigView.vue'),
