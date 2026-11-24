@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").denyAll()
+                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/especialidades/**", "/api/medicos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/citas/fechas-habiles", "/api/citas/disponibilidad").permitAll()
                         .requestMatchers("/api/admin/**", "/api/configuracion/**").hasRole("ADMINISTRADOR")

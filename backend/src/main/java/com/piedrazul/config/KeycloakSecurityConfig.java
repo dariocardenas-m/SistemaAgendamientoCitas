@@ -41,6 +41,7 @@ public class KeycloakSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/citas/fechas-habiles", "/api/citas/disponibilidad").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").denyAll()
                         .requestMatchers("/h2-console/**").denyAll()
+                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/api/configuracion/**", "/api/medicos/*/configuracion").hasRole("ADMINISTRADOR")
                         .requestMatchers("/api/citas/consulta", "/api/citas/exportar", "/api/citas/historial")
                         .hasAnyRole("AGENDADOR", "ADMINISTRADOR", "MEDICO_TERAPISTA")

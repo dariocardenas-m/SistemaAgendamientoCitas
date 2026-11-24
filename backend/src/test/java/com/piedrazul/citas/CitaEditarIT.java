@@ -82,15 +82,18 @@ class CitaEditarIT {
 
     @Test
     void editarCitaCanceladaDevuelve400() throws Exception {
-        Long citaId = reservar(tokenPaciente, medicoId, fechaHabil, LocalTime.of(10, 0), "A cancelar");
+        LocalDate fechaCancelable = siguienteHabil(LocalDate.now().plusDays(2), DayOfWeek.MONDAY, DayOfWeek.FRIDAY);
+        Long citaId = reservar(tokenPaciente, medicoId, fechaCancelable, LocalTime.of(10, 0), "A cancelar");
         mockMvc.perform(patch("/api/citas/" + citaId + "/cancelar")
-                        .header("Authorization", "Bearer " + tokenPaciente))
+                        .header("Authorization", "Bearer " + tokenPaciente)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"justificacion\":\"No podré asistir\"}"))
                 .andExpect(status().isOk());
 
         mockMvc.perform(put("/api/citas/" + citaId)
                         .header("Authorization", "Bearer " + tokenPaciente)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(cuerpoEdicion(medicoId, fechaHabil, LocalTime.of(10, 30), "PRESENCIAL", "No debe pasar")))
+                        .content(cuerpoEdicion(medicoId, fechaCancelable, LocalTime.of(10, 30), "PRESENCIAL", "No debe pasar")))
                 .andExpect(status().isBadRequest());
     }
 
@@ -171,7 +174,11 @@ class CitaEditarIT {
     }
 
     private LocalDate siguienteHabil(DayOfWeek desde, DayOfWeek hasta) {
-        LocalDate d = LocalDate.now().plusDays(1);
+        return siguienteHabil(LocalDate.now().plusDays(1), desde, hasta);
+    }
+
+    private LocalDate siguienteHabil(LocalDate inicio, DayOfWeek desde, DayOfWeek hasta) {
+        LocalDate d = inicio;
         while (d.getDayOfWeek().getValue() < desde.getValue() || d.getDayOfWeek().getValue() > hasta.getValue()) {
             d = d.plusDays(1);
         }

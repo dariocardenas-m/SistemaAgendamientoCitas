@@ -81,6 +81,8 @@
           <button
             v-for="f in store.fechasHabiles"
             :key="f"
+            data-testid="fecha-disponible"
+            :data-fecha="f"
             class="rounded-2xl border p-3 text-center text-sm"
             :class="store.fecha === f ? 'border-brand bg-brand text-white' : 'border-slate-100 hover:border-brand/40'"
             @click="store.fecha = f"
@@ -108,6 +110,7 @@
           <button
             v-for="h in todasLasFranjas"
             :key="h"
+            data-testid="hora-disponible"
             class="rounded-xl border px-3 py-3 text-sm font-semibold"
             :disabled="store.disponibilidad.ocupadas.includes(h) || !store.disponibilidad.libres.includes(h)"
             :class="slotClass(h)"

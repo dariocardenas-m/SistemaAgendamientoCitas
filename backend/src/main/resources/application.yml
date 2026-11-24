@@ -23,14 +23,26 @@ spring:
       mode: never
 
 server:
-  port: 8080
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
 
 app:
   jwt:
     secret: ${APP_JWT_SECRET:local-development-only-change-this-jwt-secret-before-deployment-2026}
     expiration-ms: 86400000
   cors:
-    allowed-origins: "http://localhost:5173,http://localhost:3000"
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
 
 logging:
   level:
