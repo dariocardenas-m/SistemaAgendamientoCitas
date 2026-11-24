@@ -89,9 +89,19 @@ mvn "-Dtest=*Test,*IT" test
 
 La versión de Java del servidor Keycloak depende de la versión de Keycloak elegida. La auditoría usó Keycloak 26.8.1 con Java 25; el backend se mantuvo en Java 17. Configura `JAVA_HOME` por terminal para cada proceso.
 
+## Despliegue académico sin costo
+
+El repositorio incluye `Dockerfile` y `render.yaml` para publicar la aplicación completa como un único servicio Docker en Render. La interfaz Vue y el API Spring Boot comparten el mismo dominio; el perfil `mysql` conecta el backend a una instancia gratuita MySQL-compatible de TiDB Cloud Starter. En Render, crea un Blueprint desde este repositorio y selecciona la rama `avance-Cardenas`.
+
+Antes de sincronizar el Blueprint, crea en TiDB Cloud Starter una instancia en modo MySQL-compatible. En el asistente de conexión, copia el host y puerto, el nombre de base (TiDB crea `test` por defecto), el nombre de usuario con el prefijo de instancia y la contraseña. Para `DB_URL`, usa el formato `jdbc:mysql://HOST:4000/test?sslMode=VERIFY_IDENTITY&serverTimezone=America/Bogota`. En el formulario de Render pega la URL, el usuario prefijado y la contraseña. Render genera `APP_JWT_SECRET`; define además contraseñas distintas y seguras para las cuatro variables `DEMO_ADMIN_PASSWORD`, `DEMO_AGENDADOR_PASSWORD`, `DEMO_PATIENT_PASSWORD` y `DEMO_MEDICO_PASSWORD`. No guardes esos valores en Git ni los compartas en capturas.
+
+La primera ejecución crea el esquema y las cuentas demo si la base está vacía. Usa únicamente datos ficticios en esta publicación. El servicio se configura para desplegar cuando pasen los checks de CI de GitHub.
+
+Esta configuración es para una demostración académica: Render Free puede dormir la API tras 15 minutos sin tráfico y tardar cerca de un minuto en despertarla. TiDB Starter aplica cuotas gratuitas mensuales de almacenamiento y operaciones; si se alcanzan, puede rechazar nuevas conexiones. Revisa los límites vigentes antes de cargar datos.
+
 ## Cuentas locales demo
 
-El perfil local crea estas cuentas al iniciar una base vacía:
+El perfil local crea estas cuentas al iniciar una base vacía. En el despliegue, sus contraseñas se reemplazan con las variables `DEMO_*_PASSWORD` que se configuren en Render:
 
 - Paciente: `juan.perez@email.com` (contraseña `paciente123`)
 - Agendador: `carlos.mendoza@piedrazul.com` (contraseña `agendador123`)

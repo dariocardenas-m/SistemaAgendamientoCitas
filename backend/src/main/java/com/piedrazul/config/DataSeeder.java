@@ -9,6 +9,7 @@ import com.piedrazul.pacientes.PacienteRepository;
 import com.piedrazul.usuarios.Rol;
 import com.piedrazul.usuarios.Usuario;
 import com.piedrazul.usuarios.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,15 @@ public class DataSeeder implements CommandLineRunner {
     private final MedicoRepository medicoRepository;
     private final ConfiguracionGlobalRepository configuracionRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${app.seed.passwords.admin}")
+    private String adminDemoPassword;
+    @Value("${app.seed.passwords.agendador}")
+    private String agendadorDemoPassword;
+    @Value("${app.seed.passwords.paciente}")
+    private String pacienteDemoPassword;
+    @Value("${app.seed.passwords.medico}")
+    private String medicoDemoPassword;
 
     public DataSeeder(UsuarioRepository usuarioRepository,
                       PacienteRepository pacienteRepository,
@@ -49,15 +59,15 @@ public class DataSeeder implements CommandLineRunner {
         cfg.setVentanaSemanas(8);
         configuracionRepository.save(cfg);
 
-        usuario("Dra. Sofía Alarcón", "admin@piedrazul.com", passwordEncoder.encode("admin123"), Rol.ADMINISTRADOR);
-        usuario("Carlos Mendoza", "carlos.mendoza@piedrazul.com", passwordEncoder.encode("agendador123"), Rol.AGENDADOR);
-        Usuario juan = usuario("Juan Pérez", "juan.perez@email.com", passwordEncoder.encode("paciente123"), Rol.PACIENTE);
-        Usuario lauraUsuario = usuario("Dra. Laura Martínez", "laura.martinez@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
-        Usuario carlosUsuario = usuario("Dr. Carlos Gómez", "carlos.gomez@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
-        Usuario anaUsuario = usuario("Dra. Ana Rodríguez", "ana.rodriguez@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
-        Usuario mariaUsuario = usuario("Lic. María Torres", "maria.torres@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
-        Usuario andresUsuario = usuario("Psic. Andrés Molina", "andres.molina@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
-        Usuario luciaUsuario = usuario("Dra. Lucía Herrera", "lucia.herrera@piedrazul.com", passwordEncoder.encode("medico123"), Rol.MEDICO_TERAPISTA);
+        usuario("Dra. Sofía Alarcón", "admin@piedrazul.com", passwordEncoder.encode(adminDemoPassword), Rol.ADMINISTRADOR);
+        usuario("Carlos Mendoza", "carlos.mendoza@piedrazul.com", passwordEncoder.encode(agendadorDemoPassword), Rol.AGENDADOR);
+        Usuario juan = usuario("Juan Pérez", "juan.perez@email.com", passwordEncoder.encode(pacienteDemoPassword), Rol.PACIENTE);
+        Usuario lauraUsuario = usuario("Dra. Laura Martínez", "laura.martinez@piedrazul.com", passwordEncoder.encode(medicoDemoPassword), Rol.MEDICO_TERAPISTA);
+        Usuario carlosUsuario = usuario("Dr. Carlos Gómez", "carlos.gomez@piedrazul.com", passwordEncoder.encode(medicoDemoPassword), Rol.MEDICO_TERAPISTA);
+        Usuario anaUsuario = usuario("Dra. Ana Rodríguez", "ana.rodriguez@piedrazul.com", passwordEncoder.encode(medicoDemoPassword), Rol.MEDICO_TERAPISTA);
+        Usuario mariaUsuario = usuario("Lic. María Torres", "maria.torres@piedrazul.com", passwordEncoder.encode(medicoDemoPassword), Rol.MEDICO_TERAPISTA);
+        Usuario andresUsuario = usuario("Psic. Andrés Molina", "andres.molina@piedrazul.com", passwordEncoder.encode(medicoDemoPassword), Rol.MEDICO_TERAPISTA);
+        Usuario luciaUsuario = usuario("Dra. Lucía Herrera", "lucia.herrera@piedrazul.com", passwordEncoder.encode(medicoDemoPassword), Rol.MEDICO_TERAPISTA);
 
         paciente(juan, "1061789234", "312 456 7890", "PAC-0001");
 

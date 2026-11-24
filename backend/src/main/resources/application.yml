@@ -41,6 +41,12 @@ app:
   jwt:
     secret: ${APP_JWT_SECRET:local-development-only-change-this-jwt-secret-before-deployment-2026}
     expiration-ms: 86400000
+  seed:
+    passwords:
+      admin: ${DEMO_ADMIN_PASSWORD:admin123}
+      agendador: ${DEMO_AGENDADOR_PASSWORD:agendador123}
+      paciente: ${DEMO_PATIENT_PASSWORD:paciente123}
+      medico: ${DEMO_MEDICO_PASSWORD:medico123}
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
 

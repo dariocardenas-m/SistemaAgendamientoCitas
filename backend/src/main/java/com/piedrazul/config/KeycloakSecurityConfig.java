@@ -37,6 +37,9 @@ public class KeycloakSecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .exceptionHandling(exceptions -> exceptions.accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico",
+                                "/login", "/registro", "/agendar", "/mis-citas", "/agendador",
+                                "/reportes/citas", "/admin", "/admin/configuracion").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/especialidades/**", "/api/medicos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/citas/fechas-habiles", "/api/citas/disponibilidad").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").denyAll()
