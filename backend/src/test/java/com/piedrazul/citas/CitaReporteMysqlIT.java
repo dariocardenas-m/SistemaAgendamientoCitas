@@ -29,8 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * localmente se omite salvo que MYSQL_TEST_URL apunte a una base dedicada de pruebas.
  */
 @SpringBootTest(properties = {
-        "spring.datasource.url=${MYSQL_TEST_URL:jdbc:h2:mem:mysql_it_fallback;DB_CLOSE_DELAY=-1}",
-        "spring.datasource.username=${MYSQL_TEST_USERNAME:sa}",
+        "spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver",
+        "spring.datasource.url=${MYSQL_TEST_URL}",
+        "spring.datasource.username=${MYSQL_TEST_USERNAME}",
         "spring.datasource.password=${MYSQL_TEST_PASSWORD:}",
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "spring.sql.init.mode=never"
