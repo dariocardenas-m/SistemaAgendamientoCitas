@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: piedrazul-keycloak
+    runtime: docker
+    plan: free
+    branch: avance-Cardenas
+    dockerfilePath: ./backend/keycloak/Dockerfile
+    dockerContext: .
+    healthCheckPath: /realms/piedrazul/.well-known/openid-configuration
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: PIEDRAZUL_WEB_ORIGIN
+        value: https://piedrazul-tercer-corte.onrender.com
+      - key: KC_DB_URL
+        sync: false
+      - key: KC_DB_USERNAME
+        sync: false
+      - key: KC_DB_PASSWORD
+        sync: false
+      - key: KC_BOOTSTRAP_ADMIN_USERNAME
+        sync: false
+      - key: KC_BOOTSTRAP_ADMIN_PASSWORD
+        sync: false

@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.SupplierJwtDecoder;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 
 @Configuration
@@ -21,13 +22,15 @@ public class KeycloakJwtDecoderConfig {
     public JwtDecoder keycloakJwtDecoder(
             @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuer,
             @Value("${app.security.jwt.audience}") String audience) {
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
         OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuer);
         OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience().contains(audience)
                 ? OAuth2TokenValidatorResult.success()
                 : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
                         "El token no está destinado a la API de Piedra Azul.", null));
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(issuerValidator, audienceValidator));
-        return decoder;
+        return new SupplierJwtDecoder(() -> {
+            NimbusJwtDecoder decoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
+            decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(issuerValidator, audienceValidator));
+            return decoder;
+        });
     }
 }
