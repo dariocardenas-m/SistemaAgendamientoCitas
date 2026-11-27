@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +31,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CitaServiceTercerCorteTest {
+
+    private static final ZoneId ZONA_COLOMBIA = ZoneId.of("America/Bogota");
 
     @Mock CitaRepository citaRepository;
     @Mock MedicoRepository medicoRepository;
@@ -53,7 +56,7 @@ class CitaServiceTercerCorteTest {
         paciente.setId(21L);
         paciente.setUsuario(pacienteUsuario);
         paciente.setDocumento("1000000001");
-        cita = cita(paciente, medico(31L, "Dra. Laura Martínez"), LocalDate.now().plusDays(2));
+        cita = cita(paciente, medico(31L, "Dra. Laura Martínez"), LocalDate.now(ZONA_COLOMBIA).plusDays(2));
         lenient().when(citaRepository.lockById(51L)).thenReturn(Optional.of(cita));
         lenient().when(pacienteRepository.findByUsuario(pacienteUsuario)).thenReturn(Optional.of(paciente));
     }
@@ -73,7 +76,7 @@ class CitaServiceTercerCorteTest {
 
     @Test
     void rechazaCancelacionConMenosDeDosDiasCalendario() {
-        cita.setFecha(LocalDate.now().plusDays(1));
+        cita.setFecha(LocalDate.now(ZONA_COLOMBIA).plusDays(1));
         CancelarCitaRequest request = request("Cambio de planes");
 
         assertThrows(ReglaNegocioException.class, () -> service.cancelar(pacienteUsuario, 51L, request));
