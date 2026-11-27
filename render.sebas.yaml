@@ -1,0 +1,88 @@
+databases:
+  - name: piedrazul-sebas-db
+    plan: free
+    region: oregon
+    postgresMajorVersion: '17'
+    databaseName: piedrazul
+    ipAllowList: []
+
+services:
+  - type: web
+    name: piedrazul-sebas-corte3
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: render-sebas-corte3
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    autoDeployTrigger: 'off'
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: postgres,keycloak
+      - key: RENDER_DATABASE_URL
+        fromDatabase:
+          name: piedrazul-sebas-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: piedrazul-sebas-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: piedrazul-sebas-db
+          property: password
+      - key: VITE_AUTH_PROVIDER
+        value: keycloak
+      - key: VITE_KEYCLOAK_URL
+        value: https://piedrazul-sebas-identidad.onrender.com
+      - key: KEYCLOAK_ISSUER_URI
+        value: https://piedrazul-sebas-identidad.onrender.com/realms/piedrazul
+      - key: APP_JWT_SECRET
+        generateValue: true
+      - key: DEMO_ADMIN_PASSWORD
+        generateValue: true
+      - key: DEMO_AGENDADOR_PASSWORD
+        generateValue: true
+      - key: DEMO_PATIENT_PASSWORD
+        generateValue: true
+      - key: DEMO_MEDICO_PASSWORD
+        generateValue: true
+
+  - type: web
+    name: piedrazul-sebas-identidad
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: render-sebas-corte3
+    dockerfilePath: ./backend/keycloak/Dockerfile
+    healthCheckPath: /realms/piedrazul/.well-known/openid-configuration
+    autoDeployTrigger: 'off'
+    envVars:
+      - key: PIEDRAZUL_WEB_ORIGIN
+        value: https://piedrazul-sebas-corte3.onrender.com
+      - key: PIEDRAZUL_IMPORT_DEMO_USERS
+        value: 'true'
+      - key: RENDER_DATABASE_URL
+        fromDatabase:
+          name: piedrazul-sebas-db
+          property: connectionString
+      - key: KC_DB_USERNAME
+        fromDatabase:
+          name: piedrazul-sebas-db
+          property: user
+      - key: KC_DB_PASSWORD
+        fromDatabase:
+          name: piedrazul-sebas-db
+          property: password
+      - key: KC_BOOTSTRAP_ADMIN_USERNAME
+        value: deployment-admin
+      - key: KC_BOOTSTRAP_ADMIN_PASSWORD
+        generateValue: true
+      - key: DEMO_ADMIN_PASSWORD
+        generateValue: true
+      - key: DEMO_AGENDADOR_PASSWORD
+        generateValue: true
+      - key: DEMO_PATIENT_PASSWORD
+        generateValue: true
+      - key: DEMO_MEDICO_PASSWORD
+        generateValue: true

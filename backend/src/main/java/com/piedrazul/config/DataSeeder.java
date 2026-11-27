@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 
@@ -34,6 +35,12 @@ public class DataSeeder implements CommandLineRunner {
     private String pacienteDemoPassword;
     @Value("${app.seed.passwords.medico}")
     private String medicoDemoPassword;
+    @Value("${app.seed.email-domain:}")
+    private String demoEmailDomain;
+    @Value("${app.seed.patient-document:1061789234}")
+    private String demoPatientDocument;
+    @Value("${app.seed.patient-phone:312 456 7890}")
+    private String demoPatientPhone;
 
     public DataSeeder(UsuarioRepository usuarioRepository,
                       PacienteRepository pacienteRepository,
@@ -50,6 +57,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) {
         if (usuarioRepository.count() > 0) {
             return;
@@ -69,7 +77,7 @@ public class DataSeeder implements CommandLineRunner {
         Usuario andresUsuario = usuario("Psic. Andrés Molina", "andres.molina@piedrazul.com", passwordEncoder.encode(medicoDemoPassword), Rol.MEDICO_TERAPISTA);
         Usuario luciaUsuario = usuario("Dra. Lucía Herrera", "lucia.herrera@piedrazul.com", passwordEncoder.encode(medicoDemoPassword), Rol.MEDICO_TERAPISTA);
 
-        paciente(juan, "1061789234", "312 456 7890", "PAC-0001");
+        paciente(juan, demoPatientDocument, demoPatientPhone, "PAC-0001");
 
         Especialidad gen = especialidad("Medicina General", "Atención primaria, chequeos preventivos y diagnóstico general", "heart", "#00A887");
         Especialidad ped = especialidad("Pediatría", "Cuidado especializado para bebés, niños y adolescentes", "baby", "#3B82F6");
@@ -113,7 +121,7 @@ public class DataSeeder implements CommandLineRunner {
     private Usuario usuario(String nombre, String email, String hash, Rol rol) {
         Usuario u = new Usuario();
         u.setNombreCompleto(nombre);
-        u.setEmail(email);
+        u.setEmail(demoEmailDomain.isBlank() ? email : email.substring(0, email.indexOf('@') + 1) + demoEmailDomain);
         u.setPasswordHash(hash);
         u.setRol(rol);
         u.setActivo(true);

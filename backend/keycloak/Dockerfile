@@ -1,6 +1,8 @@
 FROM node:20-alpine AS realm
 WORKDIR /realm
 COPY backend/keycloak/piedrazul-realm.json backend/keycloak/render-realm.mjs ./
+ARG PIEDRAZUL_IMPORT_DEMO_USERS=false
+ENV PIEDRAZUL_IMPORT_DEMO_USERS=${PIEDRAZUL_IMPORT_DEMO_USERS}
 RUN node render-realm.mjs
 
 FROM quay.io/keycloak/keycloak:26.8.2
@@ -14,4 +16,4 @@ ENV KC_HTTP_ENABLED=true \
     JAVA_OPTS_KC_HEAP="-Xms64m -Xmx160m" \
     JAVA_OPTS_APPEND="-XX:ActiveProcessorCount=2 -XX:ReservedCodeCacheSize=48m"
 EXPOSE 10000
-ENTRYPOINT ["/bin/bash", "-ec", "exec /opt/keycloak/bin/kc.sh start --optimized --import-realm --hostname=\"${KC_HOSTNAME:-${RENDER_EXTERNAL_URL:?Falta el hostname HTTPS de Keycloak}}\""]
+ENTRYPOINT ["/bin/bash", "-ec", "if [ -n \"${RENDER_DATABASE_URL:-}\" ]; then export KC_DB_URL=\"jdbc:postgresql://${RENDER_DATABASE_URL##*@}\"; fi; exec /opt/keycloak/bin/kc.sh start --optimized --import-realm --hostname=\"${KC_HOSTNAME:-${RENDER_EXTERNAL_URL:?Falta el hostname HTTPS de Keycloak}}\""]

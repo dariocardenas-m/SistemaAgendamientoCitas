@@ -28,4 +28,4 @@ WORKDIR /app
 COPY --from=backend-build /workspace/backend/target/sistema-agendamiento-citas-1.0.0.jar app.jar
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=35.0 -XX:MaxMetaspaceSize=128m -XX:+UseSerialGC -Duser.timezone=America/Bogota"
 EXPOSE 8080
-ENTRYPOINT ["sh", "-c", "exec java -Dserver.address=0.0.0.0 -Dserver.port=${PORT:-8080} -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-ec", "if [ -n \"${RENDER_DATABASE_URL:-}\" ]; then export DB_URL=\"jdbc:postgresql://${RENDER_DATABASE_URL##*@}\"; fi; exec java -Dserver.address=0.0.0.0 -Dserver.port=${PORT:-8080} -jar /app/app.jar"]

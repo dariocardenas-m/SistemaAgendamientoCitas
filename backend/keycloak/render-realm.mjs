@@ -11,5 +11,29 @@ webClient.redirectUris = webClient.redirectUris.map(uri => uri.replace(localOrig
 webClient.webOrigins = [appOrigin]
 webClient.attributes['post.logout.redirect.uris'] = `${appOrigin}/`
 
+if (process.env.PIEDRAZUL_IMPORT_DEMO_USERS === 'true') {
+  realm.resetPasswordAllowed = false
+  realm.bruteForceProtected = true
+  realm.users = [
+    demoUser('admin', 'Sofía', 'Alarcón', 'ADMINISTRADOR', 'DEMO_ADMIN_PASSWORD'),
+    demoUser('carlos.mendoza', 'Carlos', 'Mendoza', 'AGENDADOR', 'DEMO_AGENDADOR_PASSWORD'),
+    demoUser('juan.perez', 'Juan', 'Pérez', 'PACIENTE', 'DEMO_PATIENT_PASSWORD'),
+    demoUser('laura.martinez', 'Laura', 'Martínez', 'MEDICO_TERAPISTA', 'DEMO_MEDICO_PASSWORD')
+  ]
+}
+
 await mkdir(new URL('cloud/', import.meta.url), { recursive: true })
 await writeFile(new URL('cloud/piedrazul-realm.json', import.meta.url), JSON.stringify(realm, null, 2) + '\n')
+
+function demoUser(username, firstName, lastName, role, passwordVariable) {
+  return {
+    username,
+    email: `${username}@example.com`,
+    firstName,
+    lastName,
+    enabled: true,
+    emailVerified: true,
+    realmRoles: [role],
+    credentials: [{ type: 'password', value: '${' + passwordVariable + '}', temporary: false }]
+  }
+}

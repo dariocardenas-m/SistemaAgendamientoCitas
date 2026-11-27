@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: agenda
+        hbm2ddl.create_namespaces: true
+
+app:
+  seed:
+    email-domain: example.com
+    patient-document: '0000000001'
+    patient-phone: '000 000 0000'

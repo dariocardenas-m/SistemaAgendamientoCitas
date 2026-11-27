@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [avance-Cardenas, main]
+    branches: [avance-Cardenas, main, render-sebas-corte3]
   pull_request:
     branches: [avance-Cardenas, main]
   workflow_dispatch:
