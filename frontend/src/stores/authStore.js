@@ -46,7 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (isKeycloak && keycloak?.authenticated) {
       usuario.value = null
       errorIdentidad.value = ''
-      return keycloak.logout({ redirectUri: window.location.origin })
+      return keycloak.logout({ redirectUri: `${window.location.origin}/` })
     }
     token.value = ''
     usuario.value = null
